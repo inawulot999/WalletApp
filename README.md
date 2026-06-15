@@ -14,6 +14,7 @@ The app does not connect to banks, crypto exchanges, payment switches, blockchai
 - Exchange-wallet transfer quote preview, marked as coming soon for execution
 - Dior Wallet UID transfer setup
 - Compliance gate that blocks transfers until the user is KYC verified
+- Live crypto price tracker powered by the public CoinGecko API
 
 ## Run
 
@@ -72,6 +73,20 @@ Invoke-RestMethod -Method Post http://localhost:8080/api/transfers/simulate `
   -ContentType 'application/json' `
   -Body '{"sourceUserId":"{userId}","sourceCurrency":"NGN","targetCurrency":"USD","sourceAmount":25000,"transferType":"CROSS_BORDER","recipientName":"Sample Recipient","destinationCountry":"US","destinationReference":"US-BANK-SANDBOX-001"}'
 ```
+
+Track live crypto prices:
+
+```powershell
+Invoke-RestMethod http://localhost:8080/api/crypto/prices?page=1&perPage=100&vsCurrency=usd
+```
+
+Look up a single asset:
+
+```powershell
+Invoke-RestMethod http://localhost:8080/api/crypto/prices/bitcoin?vsCurrency=usd
+```
+
+The tracker paginates through the full CoinGecko market list. Increase `page` to fetch the next batch of assets. Responses are cached for 60 seconds to stay within public API limits.
 
 ## Compliance note
 
