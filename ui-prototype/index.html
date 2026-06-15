@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dior Wallet UI Prototype</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand-row">
+        <div class="brand-mark" aria-hidden="true">DW</div>
+        <div>
+          <div class="brand-name">Dior Wallet</div>
+          <div class="brand-subtitle">Sandbox</div>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <button class="nav-item is-active" type="button" data-view="dashboard">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" type="button" data-view="send">
+          <i data-lucide="send"></i>
+          <span>Send Money</span>
+        </button>
+        <button class="nav-item" type="button" data-view="swap">
+          <i data-lucide="repeat-2"></i>
+          <span>Swap</span>
+        </button>
+        <button class="nav-item" type="button" data-view="kyc">
+          <i data-lucide="shield-check"></i>
+          <span>KYC</span>
+        </button>
+        <button class="nav-item" type="button" data-view="profile">
+          <i data-lucide="user-round-cog"></i>
+          <span>Profile</span>
+        </button>
+        <button class="nav-item" type="button" data-view="security">
+          <i data-lucide="key-round"></i>
+          <span>Security</span>
+        </button>
+        <button class="nav-item" type="button" data-view="activity">
+          <i data-lucide="receipt-text"></i>
+          <span>Activity</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-status">
+        <div class="status-dot" aria-hidden="true"></div>
+        <div>
+          <div class="status-title">Compliance gate</div>
+          <div class="status-copy">KYC verified</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Dior Wallet sandbox</p>
+          <h1>NGN wallet and transfers</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-button theme-toggle" type="button" aria-label="Toggle theme">
+            <i data-lucide="moon"></i>
+          </button>
+          <button class="icon-button" type="button" aria-label="Notifications">
+            <i data-lucide="bell"></i>
+          </button>
+          <button class="icon-button lock-now" type="button" aria-label="Lock app">
+            <i data-lucide="lock-keyhole"></i>
+          </button>
+          <button class="profile-button" type="button" data-view="profile">
+            <span class="avatar profile-avatar">PT</span>
+            <span class="profile-name">Popoola Toluwani Faith</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="mobile-tabs" aria-label="Views">
+        <button class="mobile-tab is-active" type="button" data-view="dashboard">Home</button>
+        <button class="mobile-tab" type="button" data-view="send">Send</button>
+        <button class="mobile-tab" type="button" data-view="swap">Swap</button>
+        <button class="mobile-tab" type="button" data-view="kyc">KYC</button>
+        <button class="mobile-tab" type="button" data-view="profile">Profile</button>
+        <button class="mobile-tab" type="button" data-view="security">Security</button>
+        <button class="mobile-tab" type="button" data-view="activity">Activity</button>
+      </section>
+
+      <section class="view is-visible" data-panel="dashboard">
+        <div class="dashboard-grid">
+          <section class="balance-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Available balance</p>
+                <div class="balance-amount">NGN 100,000.00</div>
+                <div class="balance-subline">USDT 240.00 available for swap</div>
+              </div>
+              <span class="pill">Verified</span>
+            </div>
+            <div class="wallet-actions">
+              <button class="primary-action" type="button" data-jump="send">
+                <i data-lucide="send"></i>
+                <span>Send</span>
+              </button>
+              <button class="secondary-action" type="button" data-jump="swap">
+                <i data-lucide="repeat-2"></i>
+                <span>Swap NGN/USDT</span>
+              </button>
+              <button class="secondary-action" type="button" data-jump="send" data-transfer-jump="EXCHANGE_WALLET">
+                <i data-lucide="wallet-cards"></i>
+                <span>Exchange wallet soon</span>
+              </button>
+              <button class="secondary-action" type="button" data-jump="send" data-transfer-jump="DIOR_WALLET_USER">
+                <i data-lucide="badge-cent"></i>
+                <span>Dior Wallet UID</span>
+              </button>
+              <button class="secondary-action" type="button" data-jump="activity">
+                <i data-lucide="list-checks"></i>
+                <span>Ledger</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="rate-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="eyebrow">Swap quote</p>
+                <h2>NGN to USDT</h2>
+              </div>
+              <i data-lucide="refresh-cw"></i>
+            </div>
+            <div class="rate-row">
+              <span>Amount</span>
+              <strong>NGN 25,000</strong>
+            </div>
+            <div class="rate-row">
+              <span>Fee</span>
+              <strong>NGN 500</strong>
+            </div>
+            <div class="rate-total">
+              <span>You receive</span>
+              <strong>USDT 14.94</strong>
+            </div>
+          </section>
+
+          <section class="kyc-panel">
+            <div class="progress-ring" aria-label="KYC progress">
+              <span>3/3</span>
+            </div>
+            <div>
+              <p class="eyebrow">KYC status</p>
+              <h2>Ready for sandbox transfers</h2>
+              <p class="muted">BVN, NIN, and address checks are marked complete for this prototype user.</p>
+            </div>
+          </section>
+
+          <section class="activity-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="eyebrow">Recent activity</p>
+                <h2>Ledger preview</h2>
+              </div>
+              <button class="small-link" type="button" data-jump="activity">View all</button>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon debit"><i data-lucide="arrow-up-right"></i></div>
+                <div>
+                  <strong>Transfer to US bank</strong>
+                  <span>Cross-border simulation</span>
+                </div>
+                <b>-NGN 25,000</b>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon credit"><i data-lucide="plus"></i></div>
+                <div>
+                  <strong>Demo wallet funding</strong>
+                  <span>Internal funding account</span>
+                </div>
+                <b>+NGN 100,000</b>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-panel="swap">
+        <div class="swap-layout">
+          <section class="form-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Instant swap</p>
+                <h2>Swap NGN and USDT</h2>
+              </div>
+              <span class="pill">Sandbox rate</span>
+            </div>
+
+            <form class="swap-form">
+              <label>
+                <span>You pay</span>
+                <div class="input-combo">
+                  <input id="swapAmount" type="number" min="1" value="25000">
+                  <select id="swapFromCurrency" aria-label="Swap from currency">
+                    <option>NGN</option>
+                    <option>USDT</option>
+                  </select>
+                </div>
+              </label>
+
+              <button class="swap-switch" type="button" aria-label="Switch swap direction">
+                <i data-lucide="arrow-up-down"></i>
+              </button>
+
+              <label>
+                <span>You receive</span>
+                <div class="input-combo">
+                  <input id="swapReceiveInput" type="text" value="14.94" readonly>
+                  <select id="swapToCurrency" aria-label="Swap to currency">
+                    <option>USDT</option>
+                    <option>NGN</option>
+                  </select>
+                </div>
+              </label>
+
+              <button class="submit-button" type="button">
+                <i data-lucide="repeat-2"></i>
+                <span>Simulate swap</span>
+              </button>
+            </form>
+          </section>
+
+          <aside class="quote-panel">
+            <p class="eyebrow">Swap preview</p>
+            <div class="quote-amount" id="swapReceive">USDT 14.94</div>
+            <div class="quote-lines">
+              <div>
+                <span>Pay</span>
+                <strong id="swapSource">NGN 25,000.00</strong>
+              </div>
+              <div>
+                <span>Fee</span>
+                <strong id="swapFee">NGN 100.00</strong>
+              </div>
+              <div>
+                <span>Rate</span>
+                <strong id="swapRate">0.00060</strong>
+              </div>
+              <div>
+                <span>Pair</span>
+                <strong id="swapPair">NGN/USDT</strong>
+              </div>
+            </div>
+            <div class="risk-box">
+              <i data-lucide="info"></i>
+              <div>
+                <strong>Prototype swap only</strong>
+                <span>Real NGN/USDT swaps need licensed partners, liquidity, compliance checks, and settlement controls.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" data-panel="send">
+        <div class="transfer-layout">
+          <section class="form-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Transfer setup</p>
+                <h2>Send money</h2>
+              </div>
+              <div class="segmented" role="tablist" aria-label="Transfer type">
+                <button class="segment is-active" type="button" data-transfer-type="CROSS_BORDER">Bank</button>
+                <button class="segment" type="button" data-transfer-type="EXCHANGE_WALLET">Exchange <span class="segment-tag">Soon</span></button>
+                <button class="segment" type="button" data-transfer-type="DIOR_WALLET_USER">Dior</button>
+              </div>
+            </div>
+
+            <form class="transfer-form">
+              <label>
+                <span>Source amount</span>
+                <div class="input-combo">
+                  <input id="sourceAmount" type="number" min="1" value="25000">
+                  <select id="sourceCurrency" aria-label="Source currency">
+                    <option>NGN</option>
+                    <option>USDT</option>
+                    <option>USD</option>
+                    <option>GBP</option>
+                    <option>GHS</option>
+                  </select>
+                </div>
+              </label>
+
+              <label>
+                <span>Recipient currency</span>
+                <select id="targetCurrency">
+                  <option>USD</option>
+                  <option>USDT</option>
+                  <option>GBP</option>
+                  <option>GHS</option>
+                  <option>NGN</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Recipient name</span>
+                <input type="text" value="Sample Recipient">
+              </label>
+
+              <label data-destination-field="bank">
+                <span>Destination country</span>
+                <select>
+                  <option>Nigeria</option>
+                  <option>United States</option>
+                  <option>United Kingdom</option>
+                  <option>Ghana</option>
+                  <option>Canada</option>
+                  <option>South Africa</option>
+                  <option>Kenya</option>
+                  <option>United Arab Emirates</option>
+                </select>
+              </label>
+
+              <div class="destination-group is-active" data-destination-group="CROSS_BORDER">
+                <label>
+                  <span>Bank name</span>
+                  <select id="bankName">
+                    <option>Access Bank</option>
+                    <option>GTBank</option>
+                    <option>Zenith Bank</option>
+                    <option>UBA</option>
+                    <option>First Bank of Nigeria</option>
+                    <option>Kuda Bank</option>
+                    <option>OPay</option>
+                    <option>Moniepoint</option>
+                    <option>Chase Bank</option>
+                    <option>Bank of America</option>
+                    <option>Barclays</option>
+                    <option>Ecobank Ghana</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Account number</span>
+                  <input id="bankAccountNumber" type="text" inputmode="numeric" value="0123456789">
+                </label>
+                <label>
+                  <span>Account holder</span>
+                  <input id="bankAccountName" type="text" value="Sample Recipient">
+                </label>
+              </div>
+
+              <div class="destination-group" data-destination-group="EXCHANGE_WALLET">
+                <div class="coming-soon-banner">
+                  <i data-lucide="clock-3"></i>
+                  <span>Exchange wallet transfers are coming soon.</span>
+                </div>
+                <label>
+                  <span>Exchange</span>
+                  <select id="exchangeName">
+                    <option>Bybit</option>
+                    <option>Binance</option>
+                    <option>Bitget</option>
+                    <option>OKX</option>
+                    <option>KuCoin</option>
+                    <option>Gate.io</option>
+                    <option>MEXC</option>
+                    <option>HTX</option>
+                    <option>Coinbase</option>
+                    <option>Kraken</option>
+                    <option>Other exchange</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Network</span>
+                  <select id="exchangeNetwork">
+                    <option>TRC20</option>
+                    <option>ERC20</option>
+                    <option>BEP20</option>
+                    <option>Polygon</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Wallet address</span>
+                  <input id="exchangeWalletAddress" type="text" value="TQ8xSandboxWallet9k2pM">
+                </label>
+                <label>
+                  <span>Memo / tag</span>
+                  <input id="exchangeMemo" type="text" value="Optional">
+                </label>
+              </div>
+
+              <div class="destination-group" data-destination-group="DIOR_WALLET_USER">
+                <label>
+                  <span>Dior Wallet UID</span>
+                  <input id="diorWalletUid" type="text" value="WA2948750">
+                </label>
+                <label>
+                  <span>Recipient username</span>
+                  <input id="diorWalletUsername" type="text" value="inawulot999">
+                </label>
+              </div>
+
+              <button class="submit-button" type="button">
+                <i data-lucide="send-horizontal"></i>
+                <span>Simulate transfer</span>
+              </button>
+            </form>
+          </section>
+
+          <aside class="quote-panel">
+            <p class="eyebrow">Live quote preview</p>
+            <div class="quote-amount" id="quoteAmount">USD 14.70</div>
+            <div class="quote-lines">
+              <div>
+                <span>Source</span>
+                <strong id="quoteSource">NGN 25,000.00</strong>
+              </div>
+              <div>
+                <span>Fee</span>
+                <strong id="quoteFee">NGN 500.00</strong>
+              </div>
+              <div>
+                <span>Rate</span>
+                <strong id="quoteRate">0.00060</strong>
+              </div>
+              <div>
+                <span>Rail</span>
+                <strong id="quoteRail">Bank payout</strong>
+              </div>
+            </div>
+            <div class="risk-box">
+              <i data-lucide="shield"></i>
+              <div>
+                <strong id="transferRiskTitle">KYC gate passed</strong>
+                <span id="transferRiskCopy">Transfer remains simulated until licensed rails are connected.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" data-panel="kyc">
+        <div class="kyc-layout">
+          <section class="form-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Identity verification</p>
+                <h2>Customer KYC</h2>
+              </div>
+              <span class="pill">Verified</span>
+            </div>
+            <div class="check-list">
+              <div class="check-item is-done">
+                <i data-lucide="check"></i>
+                <div>
+                  <strong>BVN captured</strong>
+                  <span>12345678901</span>
+                </div>
+              </div>
+              <div class="check-item is-done">
+                <i data-lucide="check"></i>
+                <div>
+                  <strong>NIN captured</strong>
+                  <span>12345678901</span>
+                </div>
+              </div>
+              <div class="check-item is-done">
+                <i data-lucide="check"></i>
+                <div>
+                  <strong>Address captured</strong>
+                  <span>Lagos, Nigeria</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="compliance-panel">
+            <p class="eyebrow">Controls</p>
+            <h2>Before production</h2>
+            <div class="control-grid">
+              <div><i data-lucide="database"></i><span>PostgreSQL ledger</span></div>
+              <div><i data-lucide="lock-keyhole"></i><span>Authentication</span></div>
+              <div><i data-lucide="scan-face"></i><span>KYC provider</span></div>
+              <div><i data-lucide="landmark"></i><span>Licensed partner rails</span></div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-panel="profile">
+        <div class="profile-layout">
+          <section class="form-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Account settings</p>
+                <h2>Edit profile</h2>
+              </div>
+              <span class="pill">UID: WA2948750</span>
+            </div>
+
+            <form class="profile-form">
+              <div class="photo-editor">
+                <div class="profile-avatar-large profile-avatar">PT</div>
+                <div>
+                  <strong>Profile picture</strong>
+                  <span>PNG or JPG preview for this prototype</span>
+                  <label class="file-button">
+                    <input id="profilePhotoInput" type="file" accept="image/png,image/jpeg">
+                    <i data-lucide="image-plus"></i>
+                    <span>Change picture</span>
+                  </label>
+                </div>
+              </div>
+
+              <label>
+                <span>Your name</span>
+                <input id="profileFullName" type="text" value="Popoola Toluwani Faith">
+              </label>
+              <label>
+                <span>Username</span>
+                <input id="profileUsername" type="text" value="inawulot999">
+              </label>
+              <label>
+                <span>Email</span>
+                <input id="profileEmail" type="email" value="inawulot999@gmail.com">
+              </label>
+              <label>
+                <span>Phone number</span>
+                <input id="profilePhone" type="tel" value="+2349012208818">
+              </label>
+              <label>
+                <span>Country</span>
+                <select id="profileCountry">
+                  <option>Nigeria</option>
+                  <option>Ghana</option>
+                  <option>United Kingdom</option>
+                  <option>United States</option>
+                </select>
+              </label>
+              <label>
+                <span>Residential address</span>
+                <input id="profileAddress" type="text" value="Ibadan, Oyo State">
+              </label>
+
+              <button class="submit-button profile-save" type="button">
+                <i data-lucide="save"></i>
+                <span>Save profile</span>
+              </button>
+            </form>
+          </section>
+
+          <aside class="profile-summary">
+            <div class="profile-avatar-large profile-avatar">PT</div>
+            <h2 class="profile-name">Popoola Toluwani Faith</h2>
+            <p class="muted profile-username">inawulot999</p>
+            <div class="profile-facts">
+              <div>
+                <span>Email</span>
+                <strong class="profile-email">inawulot999@gmail.com</strong>
+              </div>
+              <div>
+                <span>Phone</span>
+                <strong class="profile-phone">+2349012208818</strong>
+              </div>
+              <div>
+                <span>Country</span>
+                <strong class="profile-country">Nigeria</strong>
+              </div>
+              <div>
+                <span>Dior Wallet UID</span>
+                <strong>WA2948750</strong>
+              </div>
+            </div>
+            <div class="risk-box profile-toast" hidden>
+              <i data-lucide="check"></i>
+              <div>
+                <strong>Profile saved</strong>
+                <span>Your prototype profile preview has been updated.</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" data-panel="security">
+        <div class="security-layout">
+          <section class="form-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Access protection</p>
+                <h2>Security settings</h2>
+              </div>
+              <span class="pill">Immediate lock on</span>
+            </div>
+
+            <div class="security-stack">
+              <div class="security-item">
+                <div class="security-icon"><i data-lucide="shield-check"></i></div>
+                <div>
+                  <strong>Authenticator app</strong>
+                  <span>Use a 6-digit code from Google Authenticator, Authy, or similar apps.</span>
+                </div>
+                <label class="switch">
+                  <input id="twoFactorToggle" type="checkbox" checked>
+                  <span></span>
+                </label>
+              </div>
+
+              <div class="authenticator-box">
+                <div class="qr-placeholder">
+                  <i data-lucide="qr-code"></i>
+                </div>
+                <div>
+                  <span>Setup key</span>
+                  <strong>DW26-NGUS-DT49</strong>
+                </div>
+              </div>
+
+              <div class="security-item">
+                <div class="security-icon"><i data-lucide="fingerprint"></i></div>
+                <div>
+                  <strong>Fingerprint unlock</strong>
+                  <span>Use device biometrics when available on the mobile app.</span>
+                </div>
+                <label class="switch">
+                  <input id="fingerprintToggle" type="checkbox" checked>
+                  <span></span>
+                </label>
+              </div>
+
+              <div class="security-item">
+                <div class="security-icon"><i data-lucide="keyboard"></i></div>
+                <div>
+                  <strong>PIN lock</strong>
+                  <span>Require a PIN before opening the wallet after it locks.</span>
+                </div>
+                <label class="switch">
+                  <input id="pinLockToggle" type="checkbox" checked>
+                  <span></span>
+                </label>
+              </div>
+
+              <div class="pin-grid">
+                <label>
+                  <span>Set PIN</span>
+                  <input id="pinInput" type="password" inputmode="numeric" maxlength="6" value="1234">
+                </label>
+                <label>
+                  <span>Confirm PIN</span>
+                  <input id="pinConfirmInput" type="password" inputmode="numeric" maxlength="6" value="1234">
+                </label>
+              </div>
+              <div class="security-message" id="securityMessage" hidden></div>
+
+              <div class="security-item">
+                <div class="security-icon"><i data-lucide="timer-off"></i></div>
+                <div>
+                  <strong>Immediate lock</strong>
+                  <span>Lock the wallet immediately when the app is locked or leaves focus.</span>
+                </div>
+                <label class="switch">
+                  <input id="immediateLockToggle" type="checkbox" checked>
+                  <span></span>
+                </label>
+              </div>
+
+              <button class="submit-button security-save" type="button">
+                <i data-lucide="save"></i>
+                <span>Save security settings</span>
+              </button>
+            </div>
+          </section>
+
+          <aside class="quote-panel">
+            <p class="eyebrow">Lock status</p>
+            <div class="quote-amount security-score">4/4</div>
+            <div class="quote-lines">
+              <div>
+                <span>Authenticator</span>
+                <strong id="twoFactorStatus">Enabled</strong>
+              </div>
+              <div>
+                <span>Fingerprint</span>
+                <strong id="fingerprintStatus">Enabled</strong>
+              </div>
+              <div>
+                <span>PIN lock</span>
+                <strong id="pinLockStatus">Enabled</strong>
+              </div>
+              <div>
+                <span>Immediate lock</span>
+                <strong id="immediateLockStatus">Enabled</strong>
+              </div>
+            </div>
+            <button class="submit-button lock-now security-lock-button" type="button">
+              <i data-lucide="lock-keyhole"></i>
+              <span>Lock now</span>
+            </button>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" data-panel="activity">
+        <section class="table-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Ledger</p>
+              <h2>Wallet movement</h2>
+            </div>
+            <button class="secondary-action compact-button" type="button">
+              <i data-lucide="download"></i>
+              <span>Export</span>
+            </button>
+          </div>
+
+          <div class="ledger-table" role="table" aria-label="Ledger entries">
+            <div class="ledger-row ledger-head" role="row">
+              <span>Type</span>
+              <span>Reference</span>
+              <span>Amount</span>
+              <span>Status</span>
+            </div>
+            <div class="ledger-row" role="row">
+              <span>Debit</span>
+              <span>Transfer to US bank</span>
+              <span>-NGN 25,000.00</span>
+              <span><b class="status-badge">Simulated</b></span>
+            </div>
+            <div class="ledger-row" role="row">
+              <span>Credit</span>
+              <span>Demo wallet funding</span>
+              <span>+NGN 100,000.00</span>
+              <span><b class="status-badge">Posted</b></span>
+            </div>
+            <div class="ledger-row" role="row">
+              <span>Fee</span>
+              <span>Transfer fee reserve</span>
+              <span>NGN 500.00</span>
+              <span><b class="status-badge">Quoted</b></span>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="lock-overlay" id="lockOverlay" role="dialog" aria-modal="true" aria-labelledby="lockTitle" hidden>
+    <section class="lock-card">
+      <div class="lock-symbol"><i data-lucide="lock-keyhole"></i></div>
+      <p class="eyebrow">Dior Wallet locked</p>
+      <h2 id="lockTitle">Enter your PIN</h2>
+      <p class="muted">Fingerprint unlock is simulated in this prototype.</p>
+      <input id="unlockPin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN">
+      <div class="unlock-error" id="unlockError" hidden>Incorrect PIN</div>
+      <button class="submit-button unlock-pin" type="button">
+        <i data-lucide="unlock-keyhole"></i>
+        <span>Unlock</span>
+      </button>
+      <button class="secondary-action unlock-fingerprint" type="button">
+        <i data-lucide="fingerprint"></i>
+        <span>Use fingerprint</span>
+      </button>
+    </section>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
