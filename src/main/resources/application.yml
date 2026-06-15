@@ -1,0 +1,6 @@
+wallet:
+  crypto:
+    provider-url: https://api.coingecko.com/api/v3
+    cache-ttl-seconds: 60
+    default-vs-currency: usd
+    max-per-page: 250

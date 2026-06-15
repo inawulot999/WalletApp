@@ -2,6 +2,7 @@ package com.inawulot.wallet.web;
 
 import com.inawulot.wallet.exception.ComplianceException;
 import com.inawulot.wallet.exception.DuplicateResourceException;
+import com.inawulot.wallet.exception.ExternalServiceException;
 import com.inawulot.wallet.exception.InsufficientFundsException;
 import com.inawulot.wallet.exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(RuntimeException exception, HttpServletRequest request) {
         return error(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ApiError> handleExternalService(RuntimeException exception, HttpServletRequest request) {
+        return error(HttpStatus.BAD_GATEWAY, exception.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
