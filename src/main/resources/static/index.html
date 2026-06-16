@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,245 +7,235 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --green: #00C48C;
-      --green-dim: #00a876;
-      --dark: #0A0F0D;
-      --surface: #111714;
-      --card: #171e1a;
-      --border: #232e28;
-      --text: #e8f0ec;
-      --muted: #7a9488;
-      --danger: #ff4d6d;
-      --warning: #f5a623;
-      --radius: 14px;
-      --font-head: 'Syne', sans-serif;
-      --font-body: 'Inter', sans-serif;
+      --green: #00C48C; --green-dim: #00a876; --dark: #0A0F0D;
+      --surface: #111714; --card: #171e1a; --border: #232e28;
+      --text: #e8f0ec; --muted: #7a9488; --danger: #ff4d6d;
+      --warning: #f5a623; --radius: 14px;
+      --font-head: 'Syne', sans-serif; --font-body: 'Inter', sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--dark); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
 
-    /* NAV */
+    /* ── AUTH SCREENS ── */
+    #auth-screen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 24px; background: var(--dark);
+    }
+    .auth-box {
+      width: 100%; max-width: 420px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 36px;
+    }
+    .auth-logo { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; color: var(--green); margin-bottom: 6px; }
+    .auth-tagline { font-size: 0.82rem; color: var(--muted); margin-bottom: 32px; }
+    .auth-tabs { display: flex; background: var(--surface); border-radius: 10px; padding: 4px; margin-bottom: 28px; }
+    .auth-tab {
+      flex: 1; padding: 9px; border: none; background: transparent;
+      color: var(--muted); font-family: var(--font-body); font-size: 0.88rem;
+      font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+    }
+    .auth-tab.active { background: var(--green); color: #000; }
+    .auth-form { display: none; }
+    .auth-form.active { display: block; }
+    .auth-title { font-family: var(--font-head); font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+    .auth-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; }
+    .field { margin-bottom: 16px; }
+    .field label { font-size: 0.75rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .field input, .field select {
+      width: 100%; padding: 12px 14px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); font-family: var(--font-body); font-size: 0.92rem;
+      outline: none; transition: border 0.2s;
+    }
+    .field input:focus, .field select:focus { border-color: var(--green); }
+    .field select option { background: var(--surface); }
+    .auth-btn {
+      width: 100%; padding: 13px; border-radius: 10px; border: none;
+      background: var(--green); color: #000; font-family: var(--font-body);
+      font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+      margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .auth-btn:hover { background: var(--green-dim); }
+    .auth-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .auth-alert {
+      padding: 11px 14px; border-radius: 9px; font-size: 0.83rem;
+      margin-bottom: 16px; display: none;
+    }
+    .auth-alert.show { display: block; }
+    .auth-alert.success { background: rgba(0,196,140,0.12); border: 1px solid rgba(0,196,140,0.3); color: var(--green); }
+    .auth-alert.error { background: rgba(255,77,109,0.12); border: 1px solid rgba(255,77,109,0.3); color: var(--danger); }
+    .auth-divider { text-align: center; color: var(--muted); font-size: 0.78rem; margin: 16px 0; }
+
+    /* ── MAIN APP ── */
+    #app-screen { display: none; }
     nav {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 28px; border-bottom: 1px solid var(--border);
+      padding: 16px 28px; border-bottom: 1px solid var(--border);
       background: var(--surface); position: sticky; top: 0; z-index: 100;
     }
-    .logo { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
-    .nav-tabs { display: flex; gap: 6px; }
+    .logo { font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; color: var(--green); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .nav-user { font-size: 0.82rem; color: var(--muted); }
+    .nav-user span { color: var(--text); font-weight: 600; }
+    .nav-tabs { display: flex; gap: 4px; }
     .tab {
-      padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
-      font-family: var(--font-body); font-size: 0.85rem; font-weight: 500;
+      padding: 8px 15px; border-radius: 8px; border: none; cursor: pointer;
+      font-family: var(--font-body); font-size: 0.83rem; font-weight: 500;
       background: transparent; color: var(--muted); transition: all 0.2s;
     }
     .tab.active, .tab:hover { background: var(--border); color: var(--text); }
     .tab.active { color: var(--green); }
+    .btn-logout {
+      padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; color: var(--muted); font-size: 0.8rem;
+      font-family: var(--font-body); cursor: pointer; transition: all 0.2s;
+    }
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
 
-    /* PAGES */
+    /* ── PAGES ── */
     .page { display: none; padding: 28px; max-width: 900px; margin: 0 auto; animation: fadeIn 0.3s ease; }
     .page.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* CARDS */
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
-    }
-    .card-title { font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+    .card-title { font-family: var(--font-head); font-size: 0.95rem; font-weight: 700; color: var(--green); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* FORM */
     .form-grid { display: grid; gap: 14px; }
     .form-grid.cols2 { grid-template-columns: 1fr 1fr; }
     label { font-size: 0.78rem; font-weight: 500; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
     input, select {
       width: 100%; padding: 11px 14px; background: var(--surface);
       border: 1px solid var(--border); border-radius: 9px;
-      color: var(--text); font-family: var(--font-body); font-size: 0.9rem;
-      outline: none; transition: border 0.2s;
+      color: var(--text); font-family: var(--font-body); font-size: 0.9rem; outline: none; transition: border 0.2s;
     }
     input:focus, select:focus { border-color: var(--green); }
     select option { background: var(--surface); }
 
-    /* BUTTONS */
-    .btn {
-      padding: 12px 24px; border-radius: 9px; border: none; cursor: pointer;
-      font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
-      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
-    }
+    .btn { padding: 11px 22px; border-radius: 9px; border: none; cursor: pointer; font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: var(--green); color: #000; }
     .btn-primary:hover { background: var(--green-dim); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .btn-outline:hover { border-color: var(--green); color: var(--green); }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+    .btn-sm { padding: 7px 13px; font-size: 0.8rem; }
 
-    /* STATUS BADGE */
-    .badge {
-      display: inline-block; padding: 3px 10px; border-radius: 20px;
-      font-size: 0.75rem; font-weight: 600;
-    }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.73rem; font-weight: 600; }
     .badge-green { background: rgba(0,196,140,0.15); color: var(--green); }
     .badge-yellow { background: rgba(245,166,35,0.15); color: var(--warning); }
     .badge-red { background: rgba(255,77,109,0.15); color: var(--danger); }
 
-    /* ALERT */
-    .alert {
-      padding: 12px 16px; border-radius: 9px; font-size: 0.85rem;
-      margin-bottom: 16px; display: none;
-    }
+    .alert { padding: 12px 16px; border-radius: 9px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
     .alert.show { display: block; }
     .alert-success { background: rgba(0,196,140,0.12); border: 1px solid rgba(0,196,140,0.3); color: var(--green); }
     .alert-error { background: rgba(255,77,109,0.12); border: 1px solid rgba(255,77,109,0.3); color: var(--danger); }
-    .alert-info { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--muted); }
 
-    /* USER CARD */
-    .user-pill {
-      display: flex; align-items: center; gap: 14px;
-      padding: 16px 20px; background: var(--surface);
-      border: 1px solid var(--border); border-radius: var(--radius);
-      margin-bottom: 10px; cursor: pointer; transition: border 0.2s;
-    }
-    .user-pill:hover { border-color: var(--green); }
-    .user-pill.selected { border-color: var(--green); background: rgba(0,196,140,0.06); }
-    .avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: linear-gradient(135deg, var(--green), #005c42);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-head); font-weight: 700; font-size: 1rem; color: #000; flex-shrink: 0;
-    }
+    .hero { padding: 28px 0 16px; }
+    .hero-title { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
+    .hero-title span { color: var(--green); }
+    .hero-sub { color: var(--muted); font-size: 0.88rem; }
+
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-family: var(--font-head); font-weight: 700; font-size: 1.05rem; }
+
+    .user-pill { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--green), #005c42); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 700; font-size: 1rem; color: #000; flex-shrink: 0; }
     .user-info { flex: 1; }
-    .user-name { font-weight: 600; font-size: 0.95rem; }
-    .user-email { font-size: 0.78rem; color: var(--muted); }
-    .user-id { font-size: 0.7rem; color: var(--border); font-family: monospace; }
+    .user-name { font-weight: 600; font-size: 0.92rem; }
+    .user-email { font-size: 0.76rem; color: var(--muted); }
 
-    /* BALANCE GRID */
-    .balance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
-    .balance-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 10px; padding: 16px; text-align: center;
-    }
-    .balance-currency { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-    .balance-amount { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; color: var(--green); }
+    .balance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .balance-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+    .balance-currency { font-size: 0.72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .balance-amount { font-family: var(--font-head); font-size: 1.3rem; font-weight: 700; color: var(--green); }
 
-    /* CRYPTO TABLE */
     .crypto-table { width: 100%; border-collapse: collapse; }
-    .crypto-table th { font-size: 0.75rem; color: var(--muted); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.4px; }
-    .crypto-table td { padding: 12px; border-bottom: 1px solid rgba(35,46,40,0.5); font-size: 0.88rem; }
+    .crypto-table th { font-size: 0.73rem; color: var(--muted); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.4px; }
+    .crypto-table td { padding: 11px 12px; border-bottom: 1px solid rgba(35,46,40,0.5); font-size: 0.86rem; }
     .crypto-table tr:last-child td { border-bottom: none; }
     .crypto-table tr:hover td { background: rgba(255,255,255,0.02); }
     .coin-name { font-weight: 600; }
-    .coin-symbol { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; }
+    .coin-symbol { font-size: 0.73rem; color: var(--muted); text-transform: uppercase; }
     .price-up { color: var(--green); }
     .price-down { color: var(--danger); }
 
-    /* LEDGER */
-    .ledger-row {
-      display: flex; align-items: center; gap: 14px;
-      padding: 13px 0; border-bottom: 1px solid rgba(35,46,40,0.5);
-    }
-    .ledger-icon {
-      width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem;
-    }
+    .ledger-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid rgba(35,46,40,0.5); }
+    .ledger-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.85rem; }
     .ledger-icon.debit { background: rgba(255,77,109,0.12); }
     .ledger-icon.credit { background: rgba(0,196,140,0.12); }
     .ledger-meta { flex: 1; }
-    .ledger-desc { font-size: 0.88rem; font-weight: 500; }
-    .ledger-date { font-size: 0.75rem; color: var(--muted); }
-    .ledger-amount { font-weight: 700; font-size: 0.95rem; }
+    .ledger-desc { font-size: 0.86rem; font-weight: 500; }
+    .ledger-date { font-size: 0.73rem; color: var(--muted); }
 
-    /* QUOTE RESULT */
-    .quote-box {
-      background: rgba(0,196,140,0.07); border: 1px solid rgba(0,196,140,0.25);
-      border-radius: 10px; padding: 20px; margin-top: 16px; display: none;
-    }
+    .quote-box { background: rgba(0,196,140,0.07); border: 1px solid rgba(0,196,140,0.25); border-radius: 10px; padding: 20px; margin-top: 16px; display: none; }
     .quote-box.show { display: block; }
-    .quote-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.88rem; }
+    .quote-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.86rem; }
     .quote-row .ql { color: var(--muted); }
     .quote-row .qv { font-weight: 600; }
 
-    /* SPINNER */
-    .spinner {
-      display: inline-block; width: 16px; height: 16px;
-      border: 2px solid rgba(0,196,140,0.3); border-top-color: var(--green);
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-    }
+    .spinner { display: inline-block; width: 15px; height: 15px; border: 2px solid rgba(0,196,140,0.3); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* HERO */
-    .hero { padding: 32px 0 20px; }
-    .hero-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .hero-title { font-family: var(--font-head); font-size: 2rem; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
-    .hero-title span { color: var(--green); }
-    .hero-sub { color: var(--muted); font-size: 0.9rem; }
+    .empty { text-align: center; padding: 36px 20px; color: var(--muted); }
+    .empty-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .empty p { font-size: 0.86rem; }
 
-    /* SECTION HEADING */
-    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .section-title { font-family: var(--font-head); font-weight: 700; font-size: 1.1rem; }
+    /* Profile card on dashboard */
+    .profile-card { display: flex; align-items: center; gap: 18px; padding: 22px; background: linear-gradient(135deg, rgba(0,196,140,0.08), rgba(0,196,140,0.03)); border: 1px solid rgba(0,196,140,0.2); border-radius: var(--radius); margin-bottom: 20px; }
+    .profile-avatar { width: 54px; height: 54px; border-radius: 50%; background: linear-gradient(135deg, var(--green), #005c42); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 800; font-size: 1.4rem; color: #000; flex-shrink: 0; }
+    .profile-name { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; }
+    .profile-email { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .profile-country { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
 
-    /* SELECTED USER BAR */
-    #selected-user-bar {
-      background: rgba(0,196,140,0.08); border: 1px solid rgba(0,196,140,0.2);
-      border-radius: 10px; padding: 12px 18px; margin-bottom: 20px;
-      display: none; align-items: center; gap: 12px; font-size: 0.85rem;
-    }
-    #selected-user-bar.show { display: flex; }
-
-    /* EMPTY STATE */
-    .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
-    .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
-    .empty p { font-size: 0.88rem; }
-
-    /* RESPONSIVE */
     @media (max-width: 600px) {
-      nav { padding: 14px 16px; }
-      .nav-tabs { gap: 3px; }
-      .tab { padding: 7px 11px; font-size: 0.78rem; }
-      .page { padding: 18px 16px; }
+      nav { padding: 12px 14px; flex-wrap: wrap; gap: 10px; }
+      .nav-tabs { gap: 2px; }
+      .tab { padding: 7px 10px; font-size: 0.78rem; }
+      .page { padding: 16px 14px; }
       .form-grid.cols2 { grid-template-columns: 1fr; }
-      .hero-title { font-size: 1.5rem; }
+      .hero-title { font-size: 1.4rem; }
+      .auth-box { padding: 28px 20px; }
       .balance-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
-<nav>
-  <div class="logo">⬡ Dior Wallet</div>
-  <div class="nav-tabs">
-    <button class="tab active" onclick="showPage('users')">Users</button>
-    <button class="tab" onclick="showPage('wallet')">Wallet</button>
-    <button class="tab" onclick="showPage('transfers')">Transfers</button>
-    <button class="tab" onclick="showPage('crypto')">Crypto</button>
-  </div>
-</nav>
+<!-- ═══════════════════════════════════════════
+     AUTH SCREEN
+════════════════════════════════════════════ -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">⬡ Dior Wallet</div>
+    <div class="auth-tagline">Nigeria-focused wallet & remittance demo</div>
 
-<!-- SELECTED USER BAR -->
-<div style="max-width:900px;margin:0 auto;padding:0 28px;">
-  <div id="selected-user-bar">
-    <span style="color:var(--green)">●</span>
-    <span>Active user: <strong id="active-user-name">—</strong></span>
-    <span style="color:var(--muted);font-family:monospace;font-size:0.75rem" id="active-user-id"></span>
-    <button class="btn btn-outline btn-sm" onclick="clearUser()" style="margin-left:auto">Clear</button>
-  </div>
-</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuth('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuth('register')">Create Account</button>
+    </div>
 
-<!-- ===== USERS PAGE ===== -->
-<div class="page active" id="page-users">
-  <div class="hero">
-    <div class="hero-label">Nigeria-focused fintech</div>
-    <div class="hero-title">Dior <span>Wallet</span> MVP</div>
-    <div class="hero-sub">Compliance-safe wallet & remittance demo</div>
-  </div>
+    <!-- LOGIN -->
+    <div class="auth-form active" id="auth-login">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Enter your email to access your wallet</div>
+      <div id="login-alert" class="auth-alert"></div>
+      <div class="field">
+        <label>Email Address</label>
+        <input id="login-email" type="email" placeholder="yourname@example.com" onkeydown="if(event.key==='Enter')loginUser()"/>
+      </div>
+      <button class="auth-btn" onclick="loginUser()" id="login-btn">Sign In</button>
+      <div class="auth-divider">No account yet? Click Create Account above</div>
+    </div>
 
-  <div class="card">
-    <div class="card-title">Create New User</div>
-    <div id="create-alert" class="alert"></div>
-    <div class="form-grid cols2">
-      <div><label>Full Name</label><input id="u-name" placeholder="e.g. Toluwani Faith"/></div>
-      <div><label>Email</label><input id="u-email" type="email" placeholder="user@example.com"/></div>
-      <div><label>Phone Number</label><input id="u-phone" placeholder="+2349012345678"/></div>
-      <div><label>Country</label>
-        <select id="u-country">
+    <!-- REGISTER -->
+    <div class="auth-form" id="auth-register">
+      <div class="auth-title">Create your account</div>
+      <div class="auth-sub">Set up your Dior Wallet in seconds</div>
+      <div id="register-alert" class="auth-alert"></div>
+      <div class="field"><label>Full Name</label><input id="reg-name" placeholder="e.g. Toluwani Faith"/></div>
+      <div class="field"><label>Email Address</label><input id="reg-email" type="email" placeholder="yourname@example.com"/></div>
+      <div class="field"><label>Phone Number</label><input id="reg-phone" placeholder="+2349012345678"/></div>
+      <div class="field">
+        <label>Country</label>
+        <select id="reg-country">
           <option value="NG">Nigeria (NG)</option>
           <option value="GH">Ghana (GH)</option>
           <option value="KE">Kenya (KE)</option>
@@ -254,229 +243,311 @@
           <option value="GB">United Kingdom (GB)</option>
         </select>
       </div>
+      <button class="auth-btn" onclick="registerUser()" id="register-btn">Create Account</button>
+      <div class="auth-divider">Already have an account? Click Sign In above</div>
     </div>
-    <br/>
-    <button class="btn btn-primary" onclick="createUser()"><span id="create-btn-text">Create User</span></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════ -->
+<div id="app-screen">
+  <nav>
+    <div class="logo">⬡ Dior Wallet</div>
+    <div class="nav-tabs">
+      <button class="tab active" onclick="showPage('dashboard', this)">Home</button>
+      <button class="tab" onclick="showPage('wallet', this)">Wallet</button>
+      <button class="tab" onclick="showPage('transfers', this)">Transfers</button>
+      <button class="tab" onclick="showPage('kyc', this)">KYC</button>
+      <button class="tab" onclick="showPage('crypto', this)">Crypto</button>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user">Hi, <span id="nav-username">—</span></span>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="hero">
+      <div class="hero-title">Your <span>Dashboard</span></div>
+      <div class="hero-sub">Overview of your wallet and activity</div>
+    </div>
+
+    <div class="profile-card" id="profile-card">
+      <div class="profile-avatar" id="profile-initial">?</div>
+      <div>
+        <div class="profile-name" id="profile-name">—</div>
+        <div class="profile-email" id="profile-email">—</div>
+        <div class="profile-country" id="profile-country">—</div>
+      </div>
+      <div style="margin-left:auto">
+        <span class="badge" id="profile-kyc-badge">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <div class="card-title" style="margin:0">Wallet Balances</div>
+        <button class="btn btn-outline btn-sm" onclick="loadBalances()">↻ Refresh</button>
+      </div>
+      <div id="dash-balances"><div class="empty"><div class="empty-icon">💰</div><p>No balances yet. Go to Wallet to fund.</p></div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <div class="card-title" style="margin:0">Recent Transactions</div>
+        <button class="btn btn-outline btn-sm" onclick="loadLedger()">↻ Refresh</button>
+      </div>
+      <div id="dash-ledger"><div class="empty"><div class="empty-icon">📒</div><p>No transactions yet.</p></div></div>
+    </div>
   </div>
 
-  <div class="card">
-    <div class="section-head">
-      <div class="card-title" style="margin:0">All Users</div>
-      <button class="btn btn-outline btn-sm" onclick="loadUsers()">↻ Refresh</button>
+  <!-- WALLET -->
+  <div class="page" id="page-wallet">
+    <div class="hero">
+      <div class="hero-title">Wallet <span>& Funds</span></div>
+      <div class="hero-sub">Add money and view your balances</div>
     </div>
-    <div id="users-list"><div class="empty"><div class="empty-icon">👤</div><p>No users yet. Create one above.</p></div></div>
+    <div class="card">
+      <div class="card-title">Fund Wallet</div>
+      <div id="fund-alert" class="alert"></div>
+      <div class="form-grid cols2">
+        <div>
+          <label>Currency</label>
+          <select id="fund-currency">
+            <option value="NGN">NGN — Nigerian Naira</option>
+            <option value="USD">USD — US Dollar</option>
+            <option value="GBP">GBP — British Pound</option>
+            <option value="EUR">EUR — Euro</option>
+            <option value="GHS">GHS — Ghanaian Cedi</option>
+          </select>
+        </div>
+        <div><label>Amount</label><input id="fund-amount" type="number" placeholder="e.g. 100000"/></div>
+        <div style="grid-column:1/-1"><label>Memo</label><input id="fund-memo" placeholder="e.g. Demo funding"/></div>
+      </div>
+      <br/>
+      <button class="btn btn-primary" onclick="fundWallet()">Fund Wallet</button>
+    </div>
+    <div class="card">
+      <div class="section-head">
+        <div class="card-title" style="margin:0">All Balances</div>
+        <button class="btn btn-outline btn-sm" onclick="loadBalances()">↻ Refresh</button>
+      </div>
+      <div id="balances-display"><div class="empty"><div class="empty-icon">💰</div><p>Fund your wallet to see balances.</p></div></div>
+    </div>
+  </div>
+
+  <!-- TRANSFERS -->
+  <div class="page" id="page-transfers">
+    <div class="hero">
+      <div class="hero-title">Transfers & <span>Remittance</span></div>
+      <div class="hero-sub">Quote and simulate cross-border transfers</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Get a Quote</div>
+      <div class="form-grid cols2">
+        <div><label>Source Currency</label>
+          <select id="q-src"><option value="NGN">NGN</option><option value="USD">USD</option><option value="GBP">GBP</option><option value="EUR">EUR</option></select>
+        </div>
+        <div><label>Target Currency</label>
+          <select id="q-tgt"><option value="USD">USD</option><option value="NGN">NGN</option><option value="GBP">GBP</option><option value="EUR">EUR</option></select>
+        </div>
+        <div><label>Amount</label><input id="q-amount" type="number" placeholder="e.g. 25000"/></div>
+        <div><label>Transfer Type</label>
+          <select id="q-type"><option value="CROSS_BORDER">Cross Border</option><option value="DIOR_WALLET">Dior Wallet UID</option><option value="EXCHANGE_WALLET">Exchange Wallet</option></select>
+        </div>
+      </div>
+      <br/>
+      <button class="btn btn-primary" onclick="getQuote()">Get Quote</button>
+      <div class="quote-box" id="quote-result"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Simulate Transfer</div>
+      <div id="transfer-alert" class="alert"></div>
+      <div class="form-grid cols2">
+        <div><label>Source Currency</label>
+          <select id="t-src"><option value="NGN">NGN</option><option value="USD">USD</option><option value="GBP">GBP</option></select>
+        </div>
+        <div><label>Target Currency</label>
+          <select id="t-tgt"><option value="USD">USD</option><option value="NGN">NGN</option><option value="GBP">GBP</option></select>
+        </div>
+        <div><label>Amount</label><input id="t-amount" type="number" placeholder="25000"/></div>
+        <div><label>Transfer Type</label>
+          <select id="t-type"><option value="CROSS_BORDER">Cross Border</option><option value="DIOR_WALLET">Dior Wallet UID</option></select>
+        </div>
+        <div><label>Recipient Name</label><input id="t-recipient" placeholder="e.g. John Doe"/></div>
+        <div><label>Destination Country</label><input id="t-country" placeholder="e.g. US"/></div>
+        <div style="grid-column:1/-1"><label>Destination Reference</label><input id="t-ref" placeholder="e.g. US-BANK-SANDBOX-001"/></div>
+      </div>
+      <br/>
+      <button class="btn btn-primary" onclick="simulateTransfer()">Simulate Transfer</button>
+    </div>
   </div>
 
   <!-- KYC -->
-  <div class="card">
-    <div class="card-title">KYC Verification</div>
-    <div id="kyc-alert" class="alert"></div>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">Select a user above first, then submit KYC details.</p>
-    <div class="form-grid cols2">
-      <div><label>BVN</label><input id="kyc-bvn" placeholder="11-digit BVN" maxlength="11"/></div>
-      <div><label>NIN</label><input id="kyc-nin" placeholder="11-digit NIN" maxlength="11"/></div>
-      <div style="grid-column:1/-1"><label>Residential Address</label><input id="kyc-address" placeholder="e.g. Ibadan, Oyo State"/></div>
+  <div class="page" id="page-kyc">
+    <div class="hero">
+      <div class="hero-title">KYC <span>Verification</span></div>
+      <div class="hero-sub">Verify your identity to unlock transfers</div>
     </div>
-    <br/>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn btn-primary" onclick="submitKyc()">Submit KYC</button>
-      <button class="btn btn-outline" onclick="approveKyc()">✓ Approve KYC (Demo)</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== WALLET PAGE ===== -->
-<div class="page" id="page-wallet">
-  <div class="hero">
-    <div class="hero-title">Wallet <span>Balances</span></div>
-    <div class="hero-sub">Fund wallets and view ledger history</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Fund Wallet</div>
-    <div id="fund-alert" class="alert"></div>
-    <div class="form-grid cols2">
-      <div>
-        <label>Currency</label>
-        <select id="fund-currency">
-          <option value="NGN">NGN — Nigerian Naira</option>
-          <option value="USD">USD — US Dollar</option>
-          <option value="GBP">GBP — British Pound</option>
-          <option value="EUR">EUR — Euro</option>
-          <option value="GHS">GHS — Ghanaian Cedi</option>
-        </select>
+    <div class="card">
+      <div class="card-title">Submit KYC Details</div>
+      <div id="kyc-alert" class="alert"></div>
+      <div id="kyc-status-box" style="margin-bottom:16px"></div>
+      <div class="form-grid cols2">
+        <div><label>BVN</label><input id="kyc-bvn" placeholder="11-digit BVN" maxlength="11"/></div>
+        <div><label>NIN</label><input id="kyc-nin" placeholder="11-digit NIN" maxlength="11"/></div>
+        <div style="grid-column:1/-1"><label>Residential Address</label><input id="kyc-address" placeholder="e.g. Ibadan, Oyo State"/></div>
       </div>
-      <div><label>Amount</label><input id="fund-amount" type="number" placeholder="e.g. 100000"/></div>
-      <div style="grid-column:1/-1"><label>Memo</label><input id="fund-memo" placeholder="e.g. Demo funding"/></div>
-    </div>
-    <br/>
-    <button class="btn btn-primary" onclick="fundWallet()">Fund Wallet</button>
-  </div>
-
-  <div class="card">
-    <div class="section-head">
-      <div class="card-title" style="margin:0">Balances</div>
-      <button class="btn btn-outline btn-sm" onclick="loadBalances()">↻ Refresh</button>
-    </div>
-    <div id="balances-display"><div class="empty"><div class="empty-icon">💰</div><p>Select a user and fund their wallet.</p></div></div>
-  </div>
-
-  <div class="card">
-    <div class="section-head">
-      <div class="card-title" style="margin:0">Ledger History</div>
-      <button class="btn btn-outline btn-sm" onclick="loadLedger()">↻ Refresh</button>
-    </div>
-    <div id="ledger-display"><div class="empty"><div class="empty-icon">📒</div><p>No transactions yet.</p></div></div>
-  </div>
-</div>
-
-<!-- ===== TRANSFERS PAGE ===== -->
-<div class="page" id="page-transfers">
-  <div class="hero">
-    <div class="hero-title">Transfers & <span>Remittance</span></div>
-    <div class="hero-sub">Quote and simulate cross-border transfers</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Get a Quote</div>
-    <div class="form-grid cols2">
-      <div>
-        <label>Source Currency</label>
-        <select id="q-src">
-          <option value="NGN">NGN</option><option value="USD">USD</option>
-          <option value="GBP">GBP</option><option value="EUR">EUR</option>
-          <option value="GHS">GHS</option>
-        </select>
-      </div>
-      <div>
-        <label>Target Currency</label>
-        <select id="q-tgt">
-          <option value="USD">USD</option><option value="NGN">NGN</option>
-          <option value="GBP">GBP</option><option value="EUR">EUR</option>
-          <option value="GHS">GHS</option>
-        </select>
-      </div>
-      <div><label>Amount</label><input id="q-amount" type="number" placeholder="e.g. 25000"/></div>
-      <div>
-        <label>Transfer Type</label>
-        <select id="q-type">
-          <option value="CROSS_BORDER">Cross Border</option>
-          <option value="DIOR_WALLET">Dior Wallet UID</option>
-          <option value="EXCHANGE_WALLET">Exchange Wallet</option>
-        </select>
+      <br/>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="submitKyc()">Submit KYC</button>
+        <button class="btn btn-outline" onclick="approveKyc()">✓ Approve KYC (Demo)</button>
       </div>
     </div>
-    <br/>
-    <button class="btn btn-primary" onclick="getQuote()">Get Quote</button>
-    <div class="quote-box" id="quote-result"></div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Simulate Transfer</div>
-    <div id="transfer-alert" class="alert"></div>
-    <div class="form-grid cols2">
-      <div>
-        <label>Source Currency</label>
-        <select id="t-src">
-          <option value="NGN">NGN</option><option value="USD">USD</option>
-          <option value="GBP">GBP</option><option value="EUR">EUR</option>
-        </select>
-      </div>
-      <div>
-        <label>Target Currency</label>
-        <select id="t-tgt">
-          <option value="USD">USD</option><option value="NGN">NGN</option>
-          <option value="GBP">GBP</option><option value="EUR">EUR</option>
-        </select>
-      </div>
-      <div><label>Amount</label><input id="t-amount" type="number" placeholder="25000"/></div>
-      <div>
-        <label>Transfer Type</label>
-        <select id="t-type">
-          <option value="CROSS_BORDER">Cross Border</option>
-          <option value="DIOR_WALLET">Dior Wallet UID</option>
-        </select>
-      </div>
-      <div><label>Recipient Name</label><input id="t-recipient" placeholder="e.g. John Doe"/></div>
-      <div><label>Destination Country</label><input id="t-country" placeholder="e.g. US"/></div>
-      <div style="grid-column:1/-1"><label>Destination Reference</label><input id="t-ref" placeholder="e.g. US-BANK-SANDBOX-001"/></div>
+  <!-- CRYPTO -->
+  <div class="page" id="page-crypto">
+    <div class="hero">
+      <div class="hero-title">Live <span>Crypto</span> Prices</div>
+      <div class="hero-sub">Powered by CoinGecko — cached 60 seconds</div>
     </div>
-    <br/>
-    <button class="btn btn-primary" onclick="simulateTransfer()">Simulate Transfer</button>
-  </div>
-</div>
-
-<!-- ===== CRYPTO PAGE ===== -->
-<div class="page" id="page-crypto">
-  <div class="hero">
-    <div class="hero-title">Live <span>Crypto</span> Prices</div>
-    <div class="hero-sub">Powered by CoinGecko — refreshes every 60 seconds</div>
-  </div>
-
-  <div class="card">
-    <div class="section-head">
-      <div class="card-title" style="margin:0">Market Prices</div>
-      <div style="display:flex;gap:10px;align-items:center">
-        <select id="crypto-currency" style="width:auto;padding:7px 12px;font-size:0.82rem" onchange="loadCrypto()">
-          <option value="usd">USD</option>
-          <option value="ngn">NGN</option>
-          <option value="gbp">GBP</option>
-          <option value="eur">EUR</option>
-        </select>
-        <button class="btn btn-outline btn-sm" onclick="loadCrypto()">↻ Refresh</button>
+    <div class="card">
+      <div class="section-head">
+        <div class="card-title" style="margin:0">Market Prices</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select id="crypto-currency" style="width:auto;padding:7px 12px;font-size:0.82rem" onchange="loadCrypto()">
+            <option value="usd">USD</option><option value="ngn">NGN</option>
+            <option value="gbp">GBP</option><option value="eur">EUR</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="loadCrypto()">↻ Refresh</button>
+        </div>
       </div>
+      <div id="crypto-display"><div class="empty"><div class="empty-icon">₿</div><p>Loading prices...</p></div></div>
     </div>
-    <div id="crypto-display"><div class="empty"><div class="empty-icon">₿</div><p>Loading prices...</p></div></div>
   </div>
-</div>
+
+</div><!-- end app-screen -->
 
 <script>
-  // ─── CONFIG ───────────────────────────────────────────────
   const API = 'https://wallet-app-n32z.onrender.com';
-  let selectedUserId = null;
-  let selectedUserName = null;
+  let currentUser = null;
 
-  // ─── NAVIGATION ───────────────────────────────────────────
-  function showPage(name) {
+  // ── AUTH SWITCHING ────────────────────────────────────
+  function switchAuth(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    document.getElementById('auth-' + tab).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // ── LOGIN ─────────────────────────────────────────────
+  async function loginUser() {
+    const email = document.getElementById('login-email').value.trim();
+    if (!email) return showAuthAlert('login-alert', 'Please enter your email.', 'error');
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+    try {
+      const users = await api('/api/users');
+      const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (!user) {
+        showAuthAlert('login-alert', 'No account found with that email. Please create one.', 'error');
+      } else {
+        enterApp(user);
+      }
+    } catch(e) {
+      showAuthAlert('login-alert', 'Could not connect: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+  }
+
+  // ── REGISTER ──────────────────────────────────────────
+  async function registerUser() {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const country = document.getElementById('reg-country').value;
+    if (!name || !email || !phone) return showAuthAlert('register-alert', 'Please fill in all fields.', 'error');
+    const btn = document.getElementById('register-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating account...';
+    try {
+      const user = await api('/api/users', 'POST', { fullName: name, email, phoneNumber: phone, country });
+      showAuthAlert('register-alert', '✓ Account created! Signing you in...', 'success');
+      setTimeout(() => enterApp(user), 1200);
+    } catch(e) {
+      showAuthAlert('register-alert', '✗ ' + e.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+    }
+  }
+
+  // ── ENTER APP ─────────────────────────────────────────
+  function enterApp(user) {
+    currentUser = user;
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'block';
+    document.getElementById('nav-username').textContent = user.fullName.split(' ')[0];
+
+    // Profile card
+    document.getElementById('profile-initial').textContent = user.fullName[0];
+    document.getElementById('profile-name').textContent = user.fullName;
+    document.getElementById('profile-email').textContent = user.email;
+    document.getElementById('profile-country').textContent = '📍 ' + user.country;
+
+    const kyc = user.kycStatus || 'PENDING';
+    const badge = document.getElementById('profile-kyc-badge');
+    badge.textContent = kyc;
+    badge.className = 'badge ' + (kyc === 'VERIFIED' || kyc === 'APPROVED' ? 'badge-green' : kyc === 'SUBMITTED' ? 'badge-yellow' : 'badge-red');
+
+    // KYC status box
+    document.getElementById('kyc-status-box').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px">
+      <span>KYC Status:</span><span class="badge ${kyc==='VERIFIED'||kyc==='APPROVED'?'badge-green':kyc==='SUBMITTED'?'badge-yellow':'badge-red'}">${kyc}</span>
+      ${kyc==='VERIFIED'||kyc==='APPROVED' ? '<span style="color:var(--green);font-size:0.82rem">✓ Transfers unlocked</span>' : '<span style="color:var(--muted);font-size:0.82rem">Submit KYC to unlock transfers</span>'}
+    </div>`;
+
+    loadBalances();
+    loadLedger();
+  }
+
+  // ── LOGOUT ────────────────────────────────────────────
+  function logout() {
+    currentUser = null;
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('login-email').value = '';
+    showPage('dashboard', document.querySelector('.tab'));
+  }
+
+  // ── NAVIGATION ────────────────────────────────────────
+  function showPage(name, el) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('page-' + name).classList.add('active');
-    event.target.classList.add('active');
+    if (el) el.classList.add('active');
     if (name === 'crypto') loadCrypto();
-    if (name === 'wallet' && selectedUserId) { loadBalances(); loadLedger(); }
   }
 
-  // ─── USER SELECTION ───────────────────────────────────────
-  function selectUser(id, name) {
-    selectedUserId = id;
-    selectedUserName = name;
-    document.getElementById('active-user-name').textContent = name;
-    document.getElementById('active-user-id').textContent = id;
-    document.getElementById('selected-user-bar').classList.add('show');
-    document.querySelectorAll('.user-pill').forEach(p => p.classList.remove('selected'));
-    document.getElementById('pill-' + id)?.classList.add('selected');
-  }
-
-  function clearUser() {
-    selectedUserId = null; selectedUserName = null;
-    document.getElementById('selected-user-bar').classList.remove('show');
-    document.querySelectorAll('.user-pill').forEach(p => p.classList.remove('selected'));
-  }
-
-  function requireUser() {
-    if (!selectedUserId) { alert('Please select a user first from the Users tab.'); return false; }
-    return true;
-  }
-
-  // ─── ALERT HELPERS ────────────────────────────────────────
+  // ── ALERT HELPERS ─────────────────────────────────────
   function showAlert(id, msg, type) {
     const el = document.getElementById(id);
     el.className = 'alert alert-' + type + ' show';
     el.textContent = msg;
     setTimeout(() => el.classList.remove('show'), 5000);
   }
+  function showAuthAlert(id, msg, type) {
+    const el = document.getElementById(id);
+    el.className = 'auth-alert ' + type + ' show';
+    el.textContent = msg;
+  }
 
-  // ─── FETCH WRAPPER ────────────────────────────────────────
+  // ── FETCH WRAPPER ─────────────────────────────────────
   async function api(path, method = 'GET', body = null) {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (body) opts.body = JSON.stringify(body);
@@ -486,122 +557,88 @@
     return data;
   }
 
-  // ─── USERS ────────────────────────────────────────────────
-  async function createUser() {
-    const name = document.getElementById('u-name').value.trim();
-    const email = document.getElementById('u-email').value.trim();
-    const phone = document.getElementById('u-phone').value.trim();
-    const country = document.getElementById('u-country').value;
-    if (!name || !email || !phone) return showAlert('create-alert', 'Please fill in all fields.', 'error');
-    const btn = document.getElementById('create-btn-text');
-    btn.innerHTML = '<span class="spinner"></span> Creating...';
-    try {
-      await api('/api/users', 'POST', { fullName: name, email, phoneNumber: phone, country });
-      showAlert('create-alert', '✓ User created successfully!', 'success');
-      document.getElementById('u-name').value = '';
-      document.getElementById('u-email').value = '';
-      document.getElementById('u-phone').value = '';
-      loadUsers();
-    } catch (e) { showAlert('create-alert', '✗ ' + e.message, 'error'); }
-    btn.textContent = 'Create User';
-  }
-
-  async function loadUsers() {
-    const container = document.getElementById('users-list');
-    container.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;padding:10px 0">Loading users...</div>';
-    try {
-      const users = await api('/api/users');
-      if (!users.length) {
-        container.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><p>No users yet.</p></div>';
-        return;
-      }
-      container.innerHTML = users.map(u => `
-        <div class="user-pill" id="pill-${u.id}" onclick="selectUser('${u.id}','${u.fullName}')">
-          <div class="avatar">${u.fullName[0]}</div>
-          <div class="user-info">
-            <div class="user-name">${u.fullName}</div>
-            <div class="user-email">${u.email}</div>
-            <div class="user-id">${u.id}</div>
-          </div>
-          <span class="badge ${u.kycStatus === 'APPROVED' ? 'badge-green' : u.kycStatus === 'PENDING' ? 'badge-yellow' : 'badge-red'}">${u.kycStatus || 'UNVERIFIED'}</span>
-        </div>`).join('');
-      if (selectedUserId) document.getElementById('pill-' + selectedUserId)?.classList.add('selected');
-    } catch (e) { container.innerHTML = '<div class="alert alert-error show">Could not load users: ' + e.message + '</div>'; }
-  }
-
-  async function submitKyc() {
-    if (!requireUser()) return;
-    const bvn = document.getElementById('kyc-bvn').value.trim();
-    const nin = document.getElementById('kyc-nin').value.trim();
-    const addr = document.getElementById('kyc-address').value.trim();
-    if (!bvn || !nin || !addr) return showAlert('kyc-alert', 'Please fill in all KYC fields.', 'error');
-    try {
-      await api(`/api/users/${selectedUserId}/kyc`, 'POST', { bvn, nin, residentialAddress: addr });
-      showAlert('kyc-alert', '✓ KYC submitted! Now click Approve for demo.', 'success');
-      loadUsers();
-    } catch (e) { showAlert('kyc-alert', '✗ ' + e.message, 'error'); }
-  }
-
-  async function approveKyc() {
-    if (!requireUser()) return;
-    try {
-      await api(`/api/users/${selectedUserId}/kyc/approve`, 'POST');
-      showAlert('kyc-alert', '✓ KYC approved!', 'success');
-      loadUsers();
-    } catch (e) { showAlert('kyc-alert', '✗ ' + e.message, 'error'); }
-  }
-
-  // ─── WALLET ───────────────────────────────────────────────
+  // ── WALLET ────────────────────────────────────────────
   async function fundWallet() {
-    if (!requireUser()) return;
+    if (!currentUser) return;
     const currency = document.getElementById('fund-currency').value;
     const amount = parseFloat(document.getElementById('fund-amount').value);
     const memo = document.getElementById('fund-memo').value || 'Demo funding';
     if (!amount || amount <= 0) return showAlert('fund-alert', 'Enter a valid amount.', 'error');
     try {
-      await api(`/api/wallets/${selectedUserId}/fund`, 'POST', { currency, amount, memo });
-      showAlert('fund-alert', `✓ Wallet funded with ${currency} ${amount.toLocaleString()}`, 'success');
+      await api(`/api/wallets/${currentUser.id}/fund`, 'POST', { currency, amount, memo });
+      showAlert('fund-alert', `✓ Funded with ${currency} ${amount.toLocaleString()}`, 'success');
       loadBalances(); loadLedger();
-    } catch (e) { showAlert('fund-alert', '✗ ' + e.message, 'error'); }
+    } catch(e) { showAlert('fund-alert', '✗ ' + e.message, 'error'); }
   }
 
   async function loadBalances() {
-    if (!selectedUserId) return;
-    const el = document.getElementById('balances-display');
+    if (!currentUser) return;
+    const targets = ['balances-display', 'dash-balances'];
     try {
-      const balances = await api(`/api/wallets/${selectedUserId}`);
-      if (!balances.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">💰</div><p>No balances yet. Fund the wallet above.</p></div>'; return; }
-      el.innerHTML = '<div class="balance-grid">' + balances.map(b => `
-        <div class="balance-card">
-          <div class="balance-currency">${b.currency}</div>
-          <div class="balance-amount">${Number(b.balance).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-        </div>`).join('') + '</div>';
-    } catch (e) { el.innerHTML = '<div class="alert alert-error show">' + e.message + '</div>'; }
+      const balances = await api(`/api/wallets/${currentUser.id}`);
+      const html = !balances.length
+              ? '<div class="empty"><div class="empty-icon">💰</div><p>No balances yet.</p></div>'
+              : '<div class="balance-grid">' + balances.map(b => `
+          <div class="balance-card">
+            <div class="balance-currency">${b.currency}</div>
+            <div class="balance-amount">${Number(b.balance).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+          </div>`).join('') + '</div>';
+      targets.forEach(t => { const el = document.getElementById(t); if(el) el.innerHTML = html; });
+    } catch(e) {
+      targets.forEach(t => { const el = document.getElementById(t); if(el) el.innerHTML = '<div class="alert alert-error show">' + e.message + '</div>'; });
+    }
   }
 
   async function loadLedger() {
-    if (!selectedUserId) return;
-    const el = document.getElementById('ledger-display');
+    if (!currentUser) return;
+    const targets = ['dash-ledger'];
     try {
-      const entries = await api(`/api/wallets/${selectedUserId}/ledger`);
-      if (!entries.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📒</div><p>No transactions yet.</p></div>'; return; }
-      el.innerHTML = entries.slice(0, 20).map(e => {
-        const isCredit = e.side === 'CREDIT';
-        return `<div class="ledger-row">
-          <div class="ledger-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? '↓' : '↑'}</div>
-          <div class="ledger-meta">
-            <div class="ledger-desc">${e.description || e.memo || 'Transaction'}</div>
-            <div class="ledger-date">${e.currency} · ${e.side}</div>
-          </div>
-          <div class="ledger-amount" style="color:${isCredit ? 'var(--green)' : 'var(--danger)'}">
-            ${isCredit ? '+' : '-'}${Number(e.amount).toLocaleString(undefined,{minimumFractionDigits:2})}
-          </div>
-        </div>`;
-      }).join('');
-    } catch (e) { el.innerHTML = '<div class="alert alert-error show">' + e.message + '</div>'; }
+      const entries = await api(`/api/wallets/${currentUser.id}/ledger`);
+      const html = !entries.length
+              ? '<div class="empty"><div class="empty-icon">📒</div><p>No transactions yet.</p></div>'
+              : entries.slice(0,10).map(e => {
+                const isCredit = e.side === 'CREDIT';
+                return `<div class="ledger-row">
+            <div class="ledger-icon ${isCredit?'credit':'debit'}">${isCredit?'↓':'↑'}</div>
+            <div class="ledger-meta">
+              <div class="ledger-desc">${e.description||e.memo||'Transaction'}</div>
+              <div class="ledger-date">${e.currency} · ${e.side}</div>
+            </div>
+            <div style="font-weight:700;font-size:0.92rem;color:${isCredit?'var(--green)':'var(--danger)'}">
+              ${isCredit?'+':'-'}${Number(e.amount).toLocaleString(undefined,{minimumFractionDigits:2})}
+            </div>
+          </div>`;
+              }).join('');
+      targets.forEach(t => { const el = document.getElementById(t); if(el) el.innerHTML = html; });
+    } catch(e) {}
   }
 
-  // ─── TRANSFERS ────────────────────────────────────────────
+  // ── KYC ───────────────────────────────────────────────
+  async function submitKyc() {
+    if (!currentUser) return;
+    const bvn = document.getElementById('kyc-bvn').value.trim();
+    const nin = document.getElementById('kyc-nin').value.trim();
+    const addr = document.getElementById('kyc-address').value.trim();
+    if (!bvn || !nin || !addr) return showAlert('kyc-alert', 'Please fill all KYC fields.', 'error');
+    try {
+      const user = await api(`/api/users/${currentUser.id}/kyc`, 'POST', { bvn, nin, residentialAddress: addr });
+      currentUser = user;
+      showAlert('kyc-alert', '✓ KYC submitted! Click Approve to verify for demo.', 'success');
+      enterApp(user);
+    } catch(e) { showAlert('kyc-alert', '✗ ' + e.message, 'error'); }
+  }
+
+  async function approveKyc() {
+    if (!currentUser) return;
+    try {
+      const user = await api(`/api/users/${currentUser.id}/kyc/approve`, 'POST');
+      currentUser = user;
+      showAlert('kyc-alert', '✓ KYC approved! Transfers are now unlocked.', 'success');
+      enterApp(user);
+    } catch(e) { showAlert('kyc-alert', '✗ ' + e.message, 'error'); }
+  }
+
+  // ── TRANSFERS ─────────────────────────────────────────
   async function getQuote() {
     const body = {
       sourceCurrency: document.getElementById('q-src').value,
@@ -615,20 +652,20 @@
     try {
       const q = await api('/api/transfers/quote', 'POST', body);
       box.innerHTML = `
-        <div style="font-family:var(--font-head);font-weight:700;font-size:1rem;margin-bottom:12px;color:var(--green)">Quote Summary</div>
-        <div class="quote-row"><span class="ql">You Send</span><span class="qv">${q.sourceCurrency} ${Number(q.sourceAmount).toLocaleString()}</span></div>
-        <div class="quote-row"><span class="ql">They Receive</span><span class="qv">${q.targetCurrency} ${Number(q.targetAmount).toLocaleString(undefined,{minimumFractionDigits:2})}</span></div>
-        <div class="quote-row"><span class="ql">Exchange Rate</span><span class="qv">${q.exchangeRate}</span></div>
-        <div class="quote-row"><span class="ql">Fee</span><span class="qv">${q.sourceCurrency} ${Number(q.fee || 0).toLocaleString()}</span></div>
-        <div class="quote-row"><span class="ql">Type</span><span class="qv">${q.transferType}</span></div>`;
+      <div style="font-family:var(--font-head);font-weight:700;font-size:1rem;margin-bottom:12px;color:var(--green)">Quote Summary</div>
+      <div class="quote-row"><span class="ql">You Send</span><span class="qv">${q.sourceCurrency} ${Number(q.sourceAmount).toLocaleString()}</span></div>
+      <div class="quote-row"><span class="ql">They Receive</span><span class="qv">${q.targetCurrency} ${Number(q.targetAmount).toLocaleString(undefined,{minimumFractionDigits:2})}</span></div>
+      <div class="quote-row"><span class="ql">Exchange Rate</span><span class="qv">${q.exchangeRate}</span></div>
+      <div class="quote-row"><span class="ql">Fee</span><span class="qv">${q.sourceCurrency} ${Number(q.fee||0).toLocaleString()}</span></div>
+      <div class="quote-row"><span class="ql">Type</span><span class="qv">${q.transferType}</span></div>`;
       box.classList.add('show');
-    } catch (e) { alert('Quote failed: ' + e.message); }
+    } catch(e) { alert('Quote failed: ' + e.message); }
   }
 
   async function simulateTransfer() {
-    if (!requireUser()) return;
+    if (!currentUser) return;
     const body = {
-      sourceUserId: selectedUserId,
+      sourceUserId: currentUser.id,
       sourceCurrency: document.getElementById('t-src').value,
       targetCurrency: document.getElementById('t-tgt').value,
       sourceAmount: parseFloat(document.getElementById('t-amount').value),
@@ -637,15 +674,15 @@
       destinationCountry: document.getElementById('t-country').value,
       destinationReference: document.getElementById('t-ref').value
     };
-    if (!body.sourceAmount || !body.recipientName) return showAlert('transfer-alert', 'Fill in all transfer fields.', 'error');
+    if (!body.sourceAmount || !body.recipientName) return showAlert('transfer-alert', 'Fill in all fields.', 'error');
     try {
       const t = await api('/api/transfers/simulate', 'POST', body);
-      showAlert('transfer-alert', `✓ Transfer simulated! ID: ${t.id} · Status: ${t.status}`, 'success');
+      showAlert('transfer-alert', `✓ Transfer done! ID: ${t.id} · Status: ${t.status}`, 'success');
       loadBalances(); loadLedger();
-    } catch (e) { showAlert('transfer-alert', '✗ ' + e.message, 'error'); }
+    } catch(e) { showAlert('transfer-alert', '✗ ' + e.message, 'error'); }
   }
 
-  // ─── CRYPTO ───────────────────────────────────────────────
+  // ── CRYPTO ────────────────────────────────────────────
   async function loadCrypto() {
     const el = document.getElementById('crypto-display');
     const vs = document.getElementById('crypto-currency').value;
@@ -653,39 +690,30 @@
     try {
       const data = await api(`/api/crypto/prices?page=1&perPage=20&vsCurrency=${vs}`);
       const coins = data.coins || data.data || data;
-      if (!Array.isArray(coins) || !coins.length) { el.innerHTML = '<div class="empty"><p>No price data available.</p></div>'; return; }
+      if (!Array.isArray(coins) || !coins.length) { el.innerHTML = '<div class="empty"><p>No data available.</p></div>'; return; }
       el.innerHTML = `<div style="overflow-x:auto"><table class="crypto-table">
-        <thead><tr>
-          <th>#</th><th>Coin</th>
-          <th>Price (${vs.toUpperCase()})</th>
-          <th>24h Change</th>
-          <th>Market Cap</th>
-        </tr></thead>
-        <tbody>${coins.map((c, i) => {
+      <thead><tr><th>#</th><th>Coin</th><th>Price (${vs.toUpperCase()})</th><th>24h Change</th><th>Market Cap</th></tr></thead>
+      <tbody>${coins.map((c,i) => {
         const change = c.priceChangePercentage24h ?? c.price_change_percentage_24h ?? 0;
         const isUp = change >= 0;
         return `<tr>
-            <td style="color:var(--muted)">${i+1}</td>
-            <td><div class="coin-name">${c.name || c.id}</div><div class="coin-symbol">${c.symbol || ''}</div></td>
-            <td style="font-weight:600">${Number(c.currentPrice ?? c.current_price ?? c.price ?? 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}</td>
-            <td class="${isUp ? 'price-up' : 'price-down'}">${isUp ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%</td>
-            <td style="color:var(--muted);font-size:0.8rem">${formatMarketCap(c.marketCap ?? c.market_cap)}</td>
-          </tr>`;
-      }).join('')}</tbody>
-      </table></div>`;
-    } catch (e) { el.innerHTML = '<div class="alert alert-error show">Could not load prices: ' + e.message + '</div>'; }
+          <td style="color:var(--muted)">${i+1}</td>
+          <td><div class="coin-name">${c.name||c.id}</div><div class="coin-symbol">${c.symbol||''}</div></td>
+          <td style="font-weight:600">${Number(c.currentPrice??c.current_price??c.price??0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}</td>
+          <td class="${isUp?'price-up':'price-down'}">${isUp?'▲':'▼'} ${Math.abs(change).toFixed(2)}%</td>
+          <td style="color:var(--muted);font-size:0.78rem">${formatMCap(c.marketCap??c.market_cap)}</td>
+        </tr>`;
+      }).join('')}</tbody></table></div>`;
+    } catch(e) { el.innerHTML = '<div class="alert alert-error show">Could not load: ' + e.message + '</div>'; }
   }
 
-  function formatMarketCap(val) {
-    if (!val) return '—';
-    if (val >= 1e12) return '$' + (val/1e12).toFixed(2) + 'T';
-    if (val >= 1e9) return '$' + (val/1e9).toFixed(2) + 'B';
-    if (val >= 1e6) return '$' + (val/1e6).toFixed(2) + 'M';
-    return '$' + val.toLocaleString();
+  function formatMCap(v) {
+    if (!v) return '—';
+    if (v >= 1e12) return '$' + (v/1e12).toFixed(2) + 'T';
+    if (v >= 1e9) return '$' + (v/1e9).toFixed(2) + 'B';
+    if (v >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
+    return '$' + v.toLocaleString();
   }
-
-  // ─── INIT ─────────────────────────────────────────────────
-  loadUsers();
 </script>
 </body>
 </html>
