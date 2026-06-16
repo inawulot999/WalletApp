@@ -1,823 +1,691 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dior Wallet UI Prototype</title>
-  <link rel="preconnect" href="https://unpkg.com">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dior Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --green: #00C48C;
+      --green-dim: #00a876;
+      --dark: #0A0F0D;
+      --surface: #111714;
+      --card: #171e1a;
+      --border: #232e28;
+      --text: #e8f0ec;
+      --muted: #7a9488;
+      --danger: #ff4d6d;
+      --warning: #f5a623;
+      --radius: 14px;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'Inter', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--dark); color: var(--text); font-family: var(--font-body); min-height: 100vh; }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 28px; border-bottom: 1px solid var(--border);
+      background: var(--surface); position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; color: var(--green); letter-spacing: -0.5px; }
+    .nav-tabs { display: flex; gap: 6px; }
+    .tab {
+      padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 500;
+      background: transparent; color: var(--muted); transition: all 0.2s;
+    }
+    .tab.active, .tab:hover { background: var(--border); color: var(--text); }
+    .tab.active { color: var(--green); }
+
+    /* PAGES */
+    .page { display: none; padding: 28px; max-width: 900px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* CARDS */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+    }
+    .card-title { font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* FORM */
+    .form-grid { display: grid; gap: 14px; }
+    .form-grid.cols2 { grid-template-columns: 1fr 1fr; }
+    label { font-size: 0.78rem; font-weight: 500; color: var(--muted); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+    input, select {
+      width: 100%; padding: 11px 14px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 9px;
+      color: var(--text); font-family: var(--font-body); font-size: 0.9rem;
+      outline: none; transition: border 0.2s;
+    }
+    input:focus, select:focus { border-color: var(--green); }
+    select option { background: var(--surface); }
+
+    /* BUTTONS */
+    .btn {
+      padding: 12px 24px; border-radius: 9px; border: none; cursor: pointer;
+      font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
+      transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary { background: var(--green); color: #000; }
+    .btn-primary:hover { background: var(--green-dim); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+
+    /* STATUS BADGE */
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600;
+    }
+    .badge-green { background: rgba(0,196,140,0.15); color: var(--green); }
+    .badge-yellow { background: rgba(245,166,35,0.15); color: var(--warning); }
+    .badge-red { background: rgba(255,77,109,0.15); color: var(--danger); }
+
+    /* ALERT */
+    .alert {
+      padding: 12px 16px; border-radius: 9px; font-size: 0.85rem;
+      margin-bottom: 16px; display: none;
+    }
+    .alert.show { display: block; }
+    .alert-success { background: rgba(0,196,140,0.12); border: 1px solid rgba(0,196,140,0.3); color: var(--green); }
+    .alert-error { background: rgba(255,77,109,0.12); border: 1px solid rgba(255,77,109,0.3); color: var(--danger); }
+    .alert-info { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--muted); }
+
+    /* USER CARD */
+    .user-pill {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 10px; cursor: pointer; transition: border 0.2s;
+    }
+    .user-pill:hover { border-color: var(--green); }
+    .user-pill.selected { border-color: var(--green); background: rgba(0,196,140,0.06); }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), #005c42);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-weight: 700; font-size: 1rem; color: #000; flex-shrink: 0;
+    }
+    .user-info { flex: 1; }
+    .user-name { font-weight: 600; font-size: 0.95rem; }
+    .user-email { font-size: 0.78rem; color: var(--muted); }
+    .user-id { font-size: 0.7rem; color: var(--border); font-family: monospace; }
+
+    /* BALANCE GRID */
+    .balance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    .balance-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px; text-align: center;
+    }
+    .balance-currency { font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .balance-amount { font-family: var(--font-head); font-size: 1.4rem; font-weight: 700; color: var(--green); }
+
+    /* CRYPTO TABLE */
+    .crypto-table { width: 100%; border-collapse: collapse; }
+    .crypto-table th { font-size: 0.75rem; color: var(--muted); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.4px; }
+    .crypto-table td { padding: 12px; border-bottom: 1px solid rgba(35,46,40,0.5); font-size: 0.88rem; }
+    .crypto-table tr:last-child td { border-bottom: none; }
+    .crypto-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .coin-name { font-weight: 600; }
+    .coin-symbol { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; }
+    .price-up { color: var(--green); }
+    .price-down { color: var(--danger); }
+
+    /* LEDGER */
+    .ledger-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 13px 0; border-bottom: 1px solid rgba(35,46,40,0.5);
+    }
+    .ledger-icon {
+      width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem;
+    }
+    .ledger-icon.debit { background: rgba(255,77,109,0.12); }
+    .ledger-icon.credit { background: rgba(0,196,140,0.12); }
+    .ledger-meta { flex: 1; }
+    .ledger-desc { font-size: 0.88rem; font-weight: 500; }
+    .ledger-date { font-size: 0.75rem; color: var(--muted); }
+    .ledger-amount { font-weight: 700; font-size: 0.95rem; }
+
+    /* QUOTE RESULT */
+    .quote-box {
+      background: rgba(0,196,140,0.07); border: 1px solid rgba(0,196,140,0.25);
+      border-radius: 10px; padding: 20px; margin-top: 16px; display: none;
+    }
+    .quote-box.show { display: block; }
+    .quote-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 0.88rem; }
+    .quote-row .ql { color: var(--muted); }
+    .quote-row .qv { font-weight: 600; }
+
+    /* SPINNER */
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(0,196,140,0.3); border-top-color: var(--green);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* HERO */
+    .hero { padding: 32px 0 20px; }
+    .hero-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .hero-title { font-family: var(--font-head); font-size: 2rem; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
+    .hero-title span { color: var(--green); }
+    .hero-sub { color: var(--muted); font-size: 0.9rem; }
+
+    /* SECTION HEADING */
+    .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-family: var(--font-head); font-weight: 700; font-size: 1.1rem; }
+
+    /* SELECTED USER BAR */
+    #selected-user-bar {
+      background: rgba(0,196,140,0.08); border: 1px solid rgba(0,196,140,0.2);
+      border-radius: 10px; padding: 12px 18px; margin-bottom: 20px;
+      display: none; align-items: center; gap: 12px; font-size: 0.85rem;
+    }
+    #selected-user-bar.show { display: flex; }
+
+    /* EMPTY STATE */
+    .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .empty p { font-size: 0.88rem; }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      nav { padding: 14px 16px; }
+      .nav-tabs { gap: 3px; }
+      .tab { padding: 7px 11px; font-size: 0.78rem; }
+      .page { padding: 18px 16px; }
+      .form-grid.cols2 { grid-template-columns: 1fr; }
+      .hero-title { font-size: 1.5rem; }
+      .balance-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar" aria-label="Primary navigation">
-      <div class="brand-row">
-        <div class="brand-mark" aria-hidden="true">DW</div>
-        <div>
-          <div class="brand-name">Dior Wallet</div>
-          <div class="brand-subtitle">Sandbox</div>
-        </div>
-      </div>
 
-      <nav class="nav-list">
-        <button class="nav-item is-active" type="button" data-view="dashboard">
-          <i data-lucide="layout-dashboard"></i>
-          <span>Dashboard</span>
-        </button>
-        <button class="nav-item" type="button" data-view="send">
-          <i data-lucide="send"></i>
-          <span>Send Money</span>
-        </button>
-        <button class="nav-item" type="button" data-view="swap">
-          <i data-lucide="repeat-2"></i>
-          <span>Swap</span>
-        </button>
-        <button class="nav-item" type="button" data-view="kyc">
-          <i data-lucide="shield-check"></i>
-          <span>KYC</span>
-        </button>
-        <button class="nav-item" type="button" data-view="profile">
-          <i data-lucide="user-round-cog"></i>
-          <span>Profile</span>
-        </button>
-        <button class="nav-item" type="button" data-view="security">
-          <i data-lucide="key-round"></i>
-          <span>Security</span>
-        </button>
-        <button class="nav-item" type="button" data-view="activity">
-          <i data-lucide="receipt-text"></i>
-          <span>Activity</span>
-        </button>
-      </nav>
+<nav>
+  <div class="logo">⬡ Dior Wallet</div>
+  <div class="nav-tabs">
+    <button class="tab active" onclick="showPage('users')">Users</button>
+    <button class="tab" onclick="showPage('wallet')">Wallet</button>
+    <button class="tab" onclick="showPage('transfers')">Transfers</button>
+    <button class="tab" onclick="showPage('crypto')">Crypto</button>
+  </div>
+</nav>
 
-      <div class="sidebar-status">
-        <div class="status-dot" aria-hidden="true"></div>
-        <div>
-          <div class="status-title">Compliance gate</div>
-          <div class="status-copy">KYC verified</div>
-        </div>
-      </div>
-    </aside>
+<!-- SELECTED USER BAR -->
+<div style="max-width:900px;margin:0 auto;padding:0 28px;">
+  <div id="selected-user-bar">
+    <span style="color:var(--green)">●</span>
+    <span>Active user: <strong id="active-user-name">—</strong></span>
+    <span style="color:var(--muted);font-family:monospace;font-size:0.75rem" id="active-user-id"></span>
+    <button class="btn btn-outline btn-sm" onclick="clearUser()" style="margin-left:auto">Clear</button>
+  </div>
+</div>
 
-    <main class="workspace">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">Dior Wallet sandbox</p>
-          <h1>NGN wallet and transfers</h1>
-        </div>
-        <div class="topbar-actions">
-          <button class="icon-button theme-toggle" type="button" aria-label="Toggle theme">
-            <i data-lucide="moon"></i>
-          </button>
-          <button class="icon-button" type="button" aria-label="Notifications">
-            <i data-lucide="bell"></i>
-          </button>
-          <button class="icon-button lock-now" type="button" aria-label="Lock app">
-            <i data-lucide="lock-keyhole"></i>
-          </button>
-          <button class="profile-button" type="button" data-view="profile">
-            <span class="avatar profile-avatar">PT</span>
-            <span class="profile-name">Popoola Toluwani Faith</span>
-          </button>
-        </div>
-      </header>
-
-      <div class="view-stack">
-      <section class="view is-visible" data-panel="dashboard">
-        <div class="dashboard-grid">
-          <section class="balance-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Available balance</p>
-                <div class="balance-amount">NGN 100,000.00</div>
-                <div class="balance-subline">USDT 240.00 available for swap</div>
-              </div>
-              <span class="pill">Verified</span>
-            </div>
-            <div class="wallet-actions">
-              <button class="primary-action" type="button" data-jump="send">
-                <i data-lucide="send"></i>
-                <span>Send</span>
-              </button>
-              <button class="secondary-action" type="button" data-jump="swap">
-                <i data-lucide="repeat-2"></i>
-                <span>Swap NGN/USDT</span>
-              </button>
-              <button class="secondary-action" type="button" data-jump="send" data-transfer-jump="EXCHANGE_WALLET">
-                <i data-lucide="wallet-cards"></i>
-                <span>Exchange wallet soon</span>
-              </button>
-              <button class="secondary-action" type="button" data-jump="send" data-transfer-jump="DIOR_WALLET_USER">
-                <i data-lucide="badge-cent"></i>
-                <span>Dior Wallet UID</span>
-              </button>
-              <button class="secondary-action" type="button" data-jump="activity">
-                <i data-lucide="list-checks"></i>
-                <span>Ledger</span>
-              </button>
-            </div>
-          </section>
-
-          <section class="rate-panel">
-            <div class="panel-head compact">
-              <div>
-                <p class="eyebrow">Market tracker</p>
-                <h2>USDT / USD</h2>
-              </div>
-              <i data-lucide="candlestick-chart"></i>
-            </div>
-            <div class="usdt-price" id="usdtPriceValue">--</div>
-            <div class="usdt-meta-row">
-              <span>Direction</span>
-              <strong class="price-indicator is-neutral" id="usdtPriceIndicator">
-                <i data-lucide="minus"></i>
-                <span>Waiting for update</span>
-              </strong>
-            </div>
-            <div class="usdt-meta-row">
-              <span>Status</span>
-              <strong id="usdtPriceStatus">Loading latest price...</strong>
-            </div>
-            <div class="usdt-meta-row">
-              <span>Last updated</span>
-              <strong id="usdtLastUpdated">--</strong>
-            </div>
-          </section>
-
-          <section class="rate-panel">
-            <div class="panel-head compact">
-              <div>
-                <p class="eyebrow">Swap quote</p>
-                <h2>NGN to USDT</h2>
-              </div>
-              <i data-lucide="refresh-cw"></i>
-            </div>
-            <div class="rate-row">
-              <span>Amount</span>
-              <strong>NGN 25,000</strong>
-            </div>
-            <div class="rate-row">
-              <span>Fee</span>
-              <strong>NGN 500</strong>
-            </div>
-            <div class="rate-total">
-              <span>You receive</span>
-              <strong>USDT 14.94</strong>
-            </div>
-          </section>
-
-          <section class="kyc-panel">
-            <div class="progress-ring" aria-label="KYC progress">
-              <span>3/3</span>
-            </div>
-            <div>
-              <p class="eyebrow">KYC status</p>
-              <h2>Ready for sandbox transfers</h2>
-              <p class="muted">BVN, NIN, and address checks are marked complete for this prototype user.</p>
-            </div>
-          </section>
-
-          <section class="activity-panel">
-            <div class="panel-head compact">
-              <div>
-                <p class="eyebrow">Recent activity</p>
-                <h2>Ledger preview</h2>
-              </div>
-              <button class="small-link" type="button" data-jump="activity">View all</button>
-            </div>
-            <div class="activity-list">
-              <div class="activity-item">
-                <div class="activity-icon debit"><i data-lucide="arrow-up-right"></i></div>
-                <div>
-                  <strong>Transfer to US bank</strong>
-                  <span>Cross-border simulation</span>
-                </div>
-                <b>-NGN 25,000</b>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon credit"><i data-lucide="plus"></i></div>
-                <div>
-                  <strong>Demo wallet funding</strong>
-                  <span>Internal funding account</span>
-                </div>
-                <b>+NGN 100,000</b>
-              </div>
-            </div>
-          </section>
-        </div>
-      </section>
-
-      <section class="view" data-panel="swap">
-        <div class="swap-layout">
-          <section class="form-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Instant swap</p>
-                <h2>Swap NGN and USDT</h2>
-              </div>
-              <span class="pill">Sandbox rate</span>
-            </div>
-
-            <form class="swap-form">
-              <label>
-                <span>You pay</span>
-                <div class="input-combo">
-                  <input id="swapAmount" type="number" min="1" value="25000">
-                  <select id="swapFromCurrency" aria-label="Swap from currency">
-                    <option>NGN</option>
-                    <option>USDT</option>
-                  </select>
-                </div>
-              </label>
-
-              <button class="swap-switch" type="button" aria-label="Switch swap direction">
-                <i data-lucide="arrow-up-down"></i>
-              </button>
-
-              <label>
-                <span>You receive</span>
-                <div class="input-combo">
-                  <input id="swapReceiveInput" type="text" value="14.94" readonly>
-                  <select id="swapToCurrency" aria-label="Swap to currency">
-                    <option>USDT</option>
-                    <option>NGN</option>
-                  </select>
-                </div>
-              </label>
-
-              <button class="submit-button" type="button">
-                <i data-lucide="repeat-2"></i>
-                <span>Simulate swap</span>
-              </button>
-            </form>
-          </section>
-
-          <aside class="quote-panel">
-            <p class="eyebrow">Swap preview</p>
-            <div class="quote-amount" id="swapReceive">USDT 14.94</div>
-            <div class="quote-lines">
-              <div>
-                <span>Pay</span>
-                <strong id="swapSource">NGN 25,000.00</strong>
-              </div>
-              <div>
-                <span>Fee</span>
-                <strong id="swapFee">NGN 100.00</strong>
-              </div>
-              <div>
-                <span>Rate</span>
-                <strong id="swapRate">0.00060</strong>
-              </div>
-              <div>
-                <span>Pair</span>
-                <strong id="swapPair">NGN/USDT</strong>
-              </div>
-            </div>
-            <div class="risk-box">
-              <i data-lucide="info"></i>
-              <div>
-                <strong>Prototype swap only</strong>
-                <span>Real NGN/USDT swaps need licensed partners, liquidity, compliance checks, and settlement controls.</span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section class="view" data-panel="send">
-        <div class="transfer-layout">
-          <section class="form-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Transfer setup</p>
-                <h2>Send money</h2>
-              </div>
-              <div class="segmented" role="tablist" aria-label="Transfer type">
-                <button class="segment is-active" type="button" data-transfer-type="CROSS_BORDER">Bank</button>
-                <button class="segment" type="button" data-transfer-type="EXCHANGE_WALLET">Exchange <span class="segment-tag">Soon</span></button>
-                <button class="segment" type="button" data-transfer-type="DIOR_WALLET_USER">Dior</button>
-              </div>
-            </div>
-
-            <form class="transfer-form">
-              <label>
-                <span>Source amount</span>
-                <div class="input-combo">
-                  <input id="sourceAmount" type="number" min="1" value="25000">
-                  <select id="sourceCurrency" aria-label="Source currency">
-                    <option>NGN</option>
-                    <option>USDT</option>
-                    <option>USD</option>
-                    <option>GBP</option>
-                    <option>GHS</option>
-                  </select>
-                </div>
-              </label>
-
-              <label>
-                <span>Recipient currency</span>
-                <select id="targetCurrency">
-                  <option>USD</option>
-                  <option>USDT</option>
-                  <option>GBP</option>
-                  <option>GHS</option>
-                  <option>NGN</option>
-                </select>
-              </label>
-
-              <label>
-                <span>Recipient name</span>
-                <input type="text" value="Sample Recipient">
-              </label>
-
-              <label data-destination-field="bank">
-                <span>Destination country</span>
-                <select>
-                  <option>Nigeria</option>
-                  <option>United States</option>
-                  <option>United Kingdom</option>
-                  <option>Ghana</option>
-                  <option>Canada</option>
-                  <option>South Africa</option>
-                  <option>Kenya</option>
-                  <option>United Arab Emirates</option>
-                </select>
-              </label>
-
-              <div class="destination-group is-active" data-destination-group="CROSS_BORDER">
-                <label>
-                  <span>Bank name</span>
-                  <select id="bankName">
-                    <option>Access Bank</option>
-                    <option>GTBank</option>
-                    <option>Zenith Bank</option>
-                    <option>UBA</option>
-                    <option>First Bank of Nigeria</option>
-                    <option>Kuda Bank</option>
-                    <option>OPay</option>
-                    <option>Moniepoint</option>
-                    <option>Chase Bank</option>
-                    <option>Bank of America</option>
-                    <option>Barclays</option>
-                    <option>Ecobank Ghana</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Account number</span>
-                  <input id="bankAccountNumber" type="text" inputmode="numeric" value="0123456789">
-                </label>
-                <label>
-                  <span>Account holder</span>
-                  <input id="bankAccountName" type="text" value="Sample Recipient">
-                </label>
-              </div>
-
-              <div class="destination-group" data-destination-group="EXCHANGE_WALLET">
-                <div class="coming-soon-banner">
-                  <i data-lucide="clock-3"></i>
-                  <span>Exchange wallet transfers are coming soon.</span>
-                </div>
-                <label>
-                  <span>Exchange</span>
-                  <select id="exchangeName">
-                    <option>Bybit</option>
-                    <option>Binance</option>
-                    <option>Bitget</option>
-                    <option>OKX</option>
-                    <option>KuCoin</option>
-                    <option>Gate.io</option>
-                    <option>MEXC</option>
-                    <option>HTX</option>
-                    <option>Coinbase</option>
-                    <option>Kraken</option>
-                    <option>Other exchange</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Network</span>
-                  <select id="exchangeNetwork">
-                    <option>TRC20</option>
-                    <option>ERC20</option>
-                    <option>BEP20</option>
-                    <option>Polygon</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Wallet address</span>
-                  <input id="exchangeWalletAddress" type="text" value="TQ8xSandboxWallet9k2pM">
-                </label>
-                <label>
-                  <span>Memo / tag</span>
-                  <input id="exchangeMemo" type="text" value="Optional">
-                </label>
-              </div>
-
-              <div class="destination-group" data-destination-group="DIOR_WALLET_USER">
-                <label>
-                  <span>Dior Wallet UID</span>
-                  <input id="diorWalletUid" type="text" value="WA2948750">
-                </label>
-                <label>
-                  <span>Recipient username</span>
-                  <input id="diorWalletUsername" type="text" value="inawulot999">
-                </label>
-              </div>
-
-              <button class="submit-button" type="button">
-                <i data-lucide="send-horizontal"></i>
-                <span>Simulate transfer</span>
-              </button>
-            </form>
-          </section>
-
-          <aside class="quote-panel">
-            <p class="eyebrow">Live quote preview</p>
-            <div class="quote-amount" id="quoteAmount">USD 14.70</div>
-            <div class="quote-lines">
-              <div>
-                <span>Source</span>
-                <strong id="quoteSource">NGN 25,000.00</strong>
-              </div>
-              <div>
-                <span>Fee</span>
-                <strong id="quoteFee">NGN 500.00</strong>
-              </div>
-              <div>
-                <span>Rate</span>
-                <strong id="quoteRate">0.00060</strong>
-              </div>
-              <div>
-                <span>Rail</span>
-                <strong id="quoteRail">Bank payout</strong>
-              </div>
-            </div>
-            <div class="risk-box">
-              <i data-lucide="shield"></i>
-              <div>
-                <strong id="transferRiskTitle">KYC gate passed</strong>
-                <span id="transferRiskCopy">Transfer remains simulated until licensed rails are connected.</span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section class="view" data-panel="kyc">
-        <div class="kyc-layout">
-          <section class="form-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Identity verification</p>
-                <h2>Customer KYC</h2>
-              </div>
-              <span class="pill">Verified</span>
-            </div>
-            <div class="check-list">
-              <div class="check-item is-done">
-                <i data-lucide="check"></i>
-                <div>
-                  <strong>BVN captured</strong>
-                  <span>12345678901</span>
-                </div>
-              </div>
-              <div class="check-item is-done">
-                <i data-lucide="check"></i>
-                <div>
-                  <strong>NIN captured</strong>
-                  <span>12345678901</span>
-                </div>
-              </div>
-              <div class="check-item is-done">
-                <i data-lucide="check"></i>
-                <div>
-                  <strong>Address captured</strong>
-                  <span>Lagos, Nigeria</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="compliance-panel">
-            <p class="eyebrow">Controls</p>
-            <h2>Before production</h2>
-            <div class="control-grid">
-              <div><i data-lucide="database"></i><span>PostgreSQL ledger</span></div>
-              <div><i data-lucide="lock-keyhole"></i><span>Authentication</span></div>
-              <div><i data-lucide="scan-face"></i><span>KYC provider</span></div>
-              <div><i data-lucide="landmark"></i><span>Licensed partner rails</span></div>
-            </div>
-          </section>
-        </div>
-      </section>
-
-      <section class="view" data-panel="profile">
-        <div class="profile-layout">
-          <section class="form-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Account settings</p>
-                <h2>Edit profile</h2>
-              </div>
-              <span class="pill">UID: WA2948750</span>
-            </div>
-
-            <form class="profile-form">
-              <div class="photo-editor">
-                <div class="profile-avatar-large profile-avatar">PT</div>
-                <div>
-                  <strong>Profile picture</strong>
-                  <span>PNG or JPG preview for this prototype</span>
-                  <label class="file-button">
-                    <input id="profilePhotoInput" type="file" accept="image/png,image/jpeg">
-                    <i data-lucide="image-plus"></i>
-                    <span>Change picture</span>
-                  </label>
-                </div>
-              </div>
-
-              <label>
-                <span>Your name</span>
-                <input id="profileFullName" type="text" value="Popoola Toluwani Faith">
-              </label>
-              <label>
-                <span>Username</span>
-                <input id="profileUsername" type="text" value="inawulot999">
-              </label>
-              <label>
-                <span>Email</span>
-                <input id="profileEmail" type="email" value="inawulot999@gmail.com">
-              </label>
-              <label>
-                <span>Phone number</span>
-                <input id="profilePhone" type="tel" value="+2349012208818">
-              </label>
-              <label>
-                <span>Country</span>
-                <select id="profileCountry">
-                  <option>Nigeria</option>
-                  <option>Ghana</option>
-                  <option>United Kingdom</option>
-                  <option>United States</option>
-                </select>
-              </label>
-              <label>
-                <span>Residential address</span>
-                <input id="profileAddress" type="text" value="Ibadan, Oyo State">
-              </label>
-
-              <button class="submit-button profile-save" type="button">
-                <i data-lucide="save"></i>
-                <span>Save profile</span>
-              </button>
-            </form>
-          </section>
-
-          <aside class="profile-summary">
-            <div class="profile-avatar-large profile-avatar">PT</div>
-            <h2 class="profile-name">Popoola Toluwani Faith</h2>
-            <p class="muted profile-username">inawulot999</p>
-            <div class="profile-facts">
-              <div>
-                <span>Email</span>
-                <strong class="profile-email">inawulot999@gmail.com</strong>
-              </div>
-              <div>
-                <span>Phone</span>
-                <strong class="profile-phone">+2349012208818</strong>
-              </div>
-              <div>
-                <span>Country</span>
-                <strong class="profile-country">Nigeria</strong>
-              </div>
-              <div>
-                <span>Dior Wallet UID</span>
-                <strong>WA2948750</strong>
-              </div>
-            </div>
-            <div class="risk-box profile-toast" hidden>
-              <i data-lucide="check"></i>
-              <div>
-                <strong>Profile saved</strong>
-                <span>Your prototype profile preview has been updated.</span>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section class="view" data-panel="security">
-        <div class="security-layout">
-          <section class="form-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Access protection</p>
-                <h2>Security settings</h2>
-              </div>
-              <span class="pill">Immediate lock on</span>
-            </div>
-
-            <div class="security-stack">
-              <div class="security-item">
-                <div class="security-icon"><i data-lucide="shield-check"></i></div>
-                <div>
-                  <strong>Authenticator app</strong>
-                  <span>Use a 6-digit code from Google Authenticator, Authy, or similar apps.</span>
-                </div>
-                <label class="switch">
-                  <input id="twoFactorToggle" type="checkbox" checked>
-                  <span></span>
-                </label>
-              </div>
-
-              <div class="authenticator-box">
-                <div class="qr-placeholder">
-                  <i data-lucide="qr-code"></i>
-                </div>
-                <div>
-                  <span>Setup key</span>
-                  <strong>DW26-NGUS-DT49</strong>
-                </div>
-              </div>
-
-              <div class="security-item">
-                <div class="security-icon"><i data-lucide="fingerprint"></i></div>
-                <div>
-                  <strong>Fingerprint unlock</strong>
-                  <span>Use device biometrics when available on the mobile app.</span>
-                </div>
-                <label class="switch">
-                  <input id="fingerprintToggle" type="checkbox" checked>
-                  <span></span>
-                </label>
-              </div>
-
-              <div class="security-item">
-                <div class="security-icon"><i data-lucide="keyboard"></i></div>
-                <div>
-                  <strong>PIN lock</strong>
-                  <span>Require a PIN before opening the wallet after it locks.</span>
-                </div>
-                <label class="switch">
-                  <input id="pinLockToggle" type="checkbox" checked>
-                  <span></span>
-                </label>
-              </div>
-
-              <div class="pin-grid">
-                <label>
-                  <span>Set PIN</span>
-                  <input id="pinInput" type="password" inputmode="numeric" maxlength="6" value="1234">
-                </label>
-                <label>
-                  <span>Confirm PIN</span>
-                  <input id="pinConfirmInput" type="password" inputmode="numeric" maxlength="6" value="1234">
-                </label>
-              </div>
-              <div class="security-message" id="securityMessage" hidden></div>
-
-              <div class="security-item">
-                <div class="security-icon"><i data-lucide="timer-off"></i></div>
-                <div>
-                  <strong>Immediate lock</strong>
-                  <span>Lock the wallet immediately when the app is locked or leaves focus.</span>
-                </div>
-                <label class="switch">
-                  <input id="immediateLockToggle" type="checkbox" checked>
-                  <span></span>
-                </label>
-              </div>
-
-              <button class="submit-button security-save" type="button">
-                <i data-lucide="save"></i>
-                <span>Save security settings</span>
-              </button>
-            </div>
-          </section>
-
-          <aside class="quote-panel">
-            <p class="eyebrow">Lock status</p>
-            <div class="quote-amount security-score">4/4</div>
-            <div class="quote-lines">
-              <div>
-                <span>Authenticator</span>
-                <strong id="twoFactorStatus">Enabled</strong>
-              </div>
-              <div>
-                <span>Fingerprint</span>
-                <strong id="fingerprintStatus">Enabled</strong>
-              </div>
-              <div>
-                <span>PIN lock</span>
-                <strong id="pinLockStatus">Enabled</strong>
-              </div>
-              <div>
-                <span>Immediate lock</span>
-                <strong id="immediateLockStatus">Enabled</strong>
-              </div>
-            </div>
-            <button class="submit-button lock-now security-lock-button" type="button">
-              <i data-lucide="lock-keyhole"></i>
-              <span>Lock now</span>
-            </button>
-          </aside>
-        </div>
-      </section>
-
-      <section class="view" data-panel="activity">
-        <section class="table-panel">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">Ledger</p>
-              <h2>Wallet movement</h2>
-            </div>
-            <button class="secondary-action compact-button" type="button">
-              <i data-lucide="download"></i>
-              <span>Export</span>
-            </button>
-          </div>
-
-          <div class="ledger-table" role="table" aria-label="Ledger entries">
-            <div class="ledger-row ledger-head" role="row">
-              <span>Type</span>
-              <span>Reference</span>
-              <span>Amount</span>
-              <span>Status</span>
-            </div>
-            <div class="ledger-row" role="row">
-              <span>Debit</span>
-              <span>Transfer to US bank</span>
-              <span>-NGN 25,000.00</span>
-              <span><b class="status-badge">Simulated</b></span>
-            </div>
-            <div class="ledger-row" role="row">
-              <span>Credit</span>
-              <span>Demo wallet funding</span>
-              <span>+NGN 100,000.00</span>
-              <span><b class="status-badge">Posted</b></span>
-            </div>
-            <div class="ledger-row" role="row">
-              <span>Fee</span>
-              <span>Transfer fee reserve</span>
-              <span>NGN 500.00</span>
-              <span><b class="status-badge">Quoted</b></span>
-            </div>
-          </div>
-        </section>
-      </section>
-      </div>
-
-      <section class="mobile-tabs" aria-label="Views">
-        <button class="mobile-tab is-active" type="button" data-view="dashboard">
-          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="layout-dashboard"></i></span>
-          <span class="tab-label">Home</span>
-        </button>
-        <button class="mobile-tab" type="button" data-view="send">
-          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="send"></i></span>
-          <span class="tab-label">Send</span>
-        </button>
-        <button class="mobile-tab" type="button" data-view="swap">
-          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="repeat-2"></i></span>
-          <span class="tab-label">Swap</span>
-        </button>
-        <button class="mobile-tab" type="button" data-view="kyc">
-          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="shield-check"></i></span>
-          <span class="tab-label">KYC</span>
-        </button>
-        <button class="mobile-tab" type="button" data-view="profile">
-          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="user-round-cog"></i></span>
-          <span class="tab-label">Profile</span>
-        </button>
-        <button class="mobile-tab" type="button" data-view="security">
-          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="key-round"></i></span>
-          <span class="tab-label">Security</span>
-        </button>
-        <button class="mobile-tab" type="button" data-view="activity">
-          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="receipt-text"></i></span>
-          <span class="tab-label">Activity</span>
-        </button>
-      </section>
-    </main>
+<!-- ===== USERS PAGE ===== -->
+<div class="page active" id="page-users">
+  <div class="hero">
+    <div class="hero-label">Nigeria-focused fintech</div>
+    <div class="hero-title">Dior <span>Wallet</span> MVP</div>
+    <div class="hero-sub">Compliance-safe wallet & remittance demo</div>
   </div>
 
-  <div class="lock-overlay" id="lockOverlay" role="dialog" aria-modal="true" aria-labelledby="lockTitle" hidden>
-    <section class="lock-card">
-      <div class="lock-symbol"><i data-lucide="lock-keyhole"></i></div>
-      <p class="eyebrow">Dior Wallet locked</p>
-      <h2 id="lockTitle">Enter your PIN</h2>
-      <p class="muted">Fingerprint unlock is simulated in this prototype.</p>
-      <input id="unlockPin" type="password" inputmode="numeric" maxlength="6" placeholder="PIN">
-      <div class="unlock-error" id="unlockError" hidden>Incorrect PIN</div>
-      <button class="submit-button unlock-pin" type="button">
-        <i data-lucide="unlock-keyhole"></i>
-        <span>Unlock</span>
-      </button>
-      <button class="secondary-action unlock-fingerprint" type="button">
-        <i data-lucide="fingerprint"></i>
-        <span>Use fingerprint</span>
-      </button>
-    </section>
+  <div class="card">
+    <div class="card-title">Create New User</div>
+    <div id="create-alert" class="alert"></div>
+    <div class="form-grid cols2">
+      <div><label>Full Name</label><input id="u-name" placeholder="e.g. Toluwani Faith"/></div>
+      <div><label>Email</label><input id="u-email" type="email" placeholder="user@example.com"/></div>
+      <div><label>Phone Number</label><input id="u-phone" placeholder="+2349012345678"/></div>
+      <div><label>Country</label>
+        <select id="u-country">
+          <option value="NG">Nigeria (NG)</option>
+          <option value="GH">Ghana (GH)</option>
+          <option value="KE">Kenya (KE)</option>
+          <option value="US">United States (US)</option>
+          <option value="GB">United Kingdom (GB)</option>
+        </select>
+      </div>
+    </div>
+    <br/>
+    <button class="btn btn-primary" onclick="createUser()"><span id="create-btn-text">Create User</span></button>
   </div>
 
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-  <script src="app.js"></script>
+  <div class="card">
+    <div class="section-head">
+      <div class="card-title" style="margin:0">All Users</div>
+      <button class="btn btn-outline btn-sm" onclick="loadUsers()">↻ Refresh</button>
+    </div>
+    <div id="users-list"><div class="empty"><div class="empty-icon">👤</div><p>No users yet. Create one above.</p></div></div>
+  </div>
+
+  <!-- KYC -->
+  <div class="card">
+    <div class="card-title">KYC Verification</div>
+    <div id="kyc-alert" class="alert"></div>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">Select a user above first, then submit KYC details.</p>
+    <div class="form-grid cols2">
+      <div><label>BVN</label><input id="kyc-bvn" placeholder="11-digit BVN" maxlength="11"/></div>
+      <div><label>NIN</label><input id="kyc-nin" placeholder="11-digit NIN" maxlength="11"/></div>
+      <div style="grid-column:1/-1"><label>Residential Address</label><input id="kyc-address" placeholder="e.g. Ibadan, Oyo State"/></div>
+    </div>
+    <br/>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="submitKyc()">Submit KYC</button>
+      <button class="btn btn-outline" onclick="approveKyc()">✓ Approve KYC (Demo)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WALLET PAGE ===== -->
+<div class="page" id="page-wallet">
+  <div class="hero">
+    <div class="hero-title">Wallet <span>Balances</span></div>
+    <div class="hero-sub">Fund wallets and view ledger history</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Fund Wallet</div>
+    <div id="fund-alert" class="alert"></div>
+    <div class="form-grid cols2">
+      <div>
+        <label>Currency</label>
+        <select id="fund-currency">
+          <option value="NGN">NGN — Nigerian Naira</option>
+          <option value="USD">USD — US Dollar</option>
+          <option value="GBP">GBP — British Pound</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="GHS">GHS — Ghanaian Cedi</option>
+        </select>
+      </div>
+      <div><label>Amount</label><input id="fund-amount" type="number" placeholder="e.g. 100000"/></div>
+      <div style="grid-column:1/-1"><label>Memo</label><input id="fund-memo" placeholder="e.g. Demo funding"/></div>
+    </div>
+    <br/>
+    <button class="btn btn-primary" onclick="fundWallet()">Fund Wallet</button>
+  </div>
+
+  <div class="card">
+    <div class="section-head">
+      <div class="card-title" style="margin:0">Balances</div>
+      <button class="btn btn-outline btn-sm" onclick="loadBalances()">↻ Refresh</button>
+    </div>
+    <div id="balances-display"><div class="empty"><div class="empty-icon">💰</div><p>Select a user and fund their wallet.</p></div></div>
+  </div>
+
+  <div class="card">
+    <div class="section-head">
+      <div class="card-title" style="margin:0">Ledger History</div>
+      <button class="btn btn-outline btn-sm" onclick="loadLedger()">↻ Refresh</button>
+    </div>
+    <div id="ledger-display"><div class="empty"><div class="empty-icon">📒</div><p>No transactions yet.</p></div></div>
+  </div>
+</div>
+
+<!-- ===== TRANSFERS PAGE ===== -->
+<div class="page" id="page-transfers">
+  <div class="hero">
+    <div class="hero-title">Transfers & <span>Remittance</span></div>
+    <div class="hero-sub">Quote and simulate cross-border transfers</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Get a Quote</div>
+    <div class="form-grid cols2">
+      <div>
+        <label>Source Currency</label>
+        <select id="q-src">
+          <option value="NGN">NGN</option><option value="USD">USD</option>
+          <option value="GBP">GBP</option><option value="EUR">EUR</option>
+          <option value="GHS">GHS</option>
+        </select>
+      </div>
+      <div>
+        <label>Target Currency</label>
+        <select id="q-tgt">
+          <option value="USD">USD</option><option value="NGN">NGN</option>
+          <option value="GBP">GBP</option><option value="EUR">EUR</option>
+          <option value="GHS">GHS</option>
+        </select>
+      </div>
+      <div><label>Amount</label><input id="q-amount" type="number" placeholder="e.g. 25000"/></div>
+      <div>
+        <label>Transfer Type</label>
+        <select id="q-type">
+          <option value="CROSS_BORDER">Cross Border</option>
+          <option value="DIOR_WALLET">Dior Wallet UID</option>
+          <option value="EXCHANGE_WALLET">Exchange Wallet</option>
+        </select>
+      </div>
+    </div>
+    <br/>
+    <button class="btn btn-primary" onclick="getQuote()">Get Quote</button>
+    <div class="quote-box" id="quote-result"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Simulate Transfer</div>
+    <div id="transfer-alert" class="alert"></div>
+    <div class="form-grid cols2">
+      <div>
+        <label>Source Currency</label>
+        <select id="t-src">
+          <option value="NGN">NGN</option><option value="USD">USD</option>
+          <option value="GBP">GBP</option><option value="EUR">EUR</option>
+        </select>
+      </div>
+      <div>
+        <label>Target Currency</label>
+        <select id="t-tgt">
+          <option value="USD">USD</option><option value="NGN">NGN</option>
+          <option value="GBP">GBP</option><option value="EUR">EUR</option>
+        </select>
+      </div>
+      <div><label>Amount</label><input id="t-amount" type="number" placeholder="25000"/></div>
+      <div>
+        <label>Transfer Type</label>
+        <select id="t-type">
+          <option value="CROSS_BORDER">Cross Border</option>
+          <option value="DIOR_WALLET">Dior Wallet UID</option>
+        </select>
+      </div>
+      <div><label>Recipient Name</label><input id="t-recipient" placeholder="e.g. John Doe"/></div>
+      <div><label>Destination Country</label><input id="t-country" placeholder="e.g. US"/></div>
+      <div style="grid-column:1/-1"><label>Destination Reference</label><input id="t-ref" placeholder="e.g. US-BANK-SANDBOX-001"/></div>
+    </div>
+    <br/>
+    <button class="btn btn-primary" onclick="simulateTransfer()">Simulate Transfer</button>
+  </div>
+</div>
+
+<!-- ===== CRYPTO PAGE ===== -->
+<div class="page" id="page-crypto">
+  <div class="hero">
+    <div class="hero-title">Live <span>Crypto</span> Prices</div>
+    <div class="hero-sub">Powered by CoinGecko — refreshes every 60 seconds</div>
+  </div>
+
+  <div class="card">
+    <div class="section-head">
+      <div class="card-title" style="margin:0">Market Prices</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <select id="crypto-currency" style="width:auto;padding:7px 12px;font-size:0.82rem" onchange="loadCrypto()">
+          <option value="usd">USD</option>
+          <option value="ngn">NGN</option>
+          <option value="gbp">GBP</option>
+          <option value="eur">EUR</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="loadCrypto()">↻ Refresh</button>
+      </div>
+    </div>
+    <div id="crypto-display"><div class="empty"><div class="empty-icon">₿</div><p>Loading prices...</p></div></div>
+  </div>
+</div>
+
+<script>
+  // ─── CONFIG ───────────────────────────────────────────────
+  const API = 'https://wallet-app-n32z.onrender.com';
+  let selectedUserId = null;
+  let selectedUserName = null;
+
+  // ─── NAVIGATION ───────────────────────────────────────────
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'crypto') loadCrypto();
+    if (name === 'wallet' && selectedUserId) { loadBalances(); loadLedger(); }
+  }
+
+  // ─── USER SELECTION ───────────────────────────────────────
+  function selectUser(id, name) {
+    selectedUserId = id;
+    selectedUserName = name;
+    document.getElementById('active-user-name').textContent = name;
+    document.getElementById('active-user-id').textContent = id;
+    document.getElementById('selected-user-bar').classList.add('show');
+    document.querySelectorAll('.user-pill').forEach(p => p.classList.remove('selected'));
+    document.getElementById('pill-' + id)?.classList.add('selected');
+  }
+
+  function clearUser() {
+    selectedUserId = null; selectedUserName = null;
+    document.getElementById('selected-user-bar').classList.remove('show');
+    document.querySelectorAll('.user-pill').forEach(p => p.classList.remove('selected'));
+  }
+
+  function requireUser() {
+    if (!selectedUserId) { alert('Please select a user first from the Users tab.'); return false; }
+    return true;
+  }
+
+  // ─── ALERT HELPERS ────────────────────────────────────────
+  function showAlert(id, msg, type) {
+    const el = document.getElementById(id);
+    el.className = 'alert alert-' + type + ' show';
+    el.textContent = msg;
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  // ─── FETCH WRAPPER ────────────────────────────────────────
+  async function api(path, method = 'GET', body = null) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(API + path, opts);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || data.error || 'Request failed (' + res.status + ')');
+    return data;
+  }
+
+  // ─── USERS ────────────────────────────────────────────────
+  async function createUser() {
+    const name = document.getElementById('u-name').value.trim();
+    const email = document.getElementById('u-email').value.trim();
+    const phone = document.getElementById('u-phone').value.trim();
+    const country = document.getElementById('u-country').value;
+    if (!name || !email || !phone) return showAlert('create-alert', 'Please fill in all fields.', 'error');
+    const btn = document.getElementById('create-btn-text');
+    btn.innerHTML = '<span class="spinner"></span> Creating...';
+    try {
+      await api('/api/users', 'POST', { fullName: name, email, phoneNumber: phone, country });
+      showAlert('create-alert', '✓ User created successfully!', 'success');
+      document.getElementById('u-name').value = '';
+      document.getElementById('u-email').value = '';
+      document.getElementById('u-phone').value = '';
+      loadUsers();
+    } catch (e) { showAlert('create-alert', '✗ ' + e.message, 'error'); }
+    btn.textContent = 'Create User';
+  }
+
+  async function loadUsers() {
+    const container = document.getElementById('users-list');
+    container.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;padding:10px 0">Loading users...</div>';
+    try {
+      const users = await api('/api/users');
+      if (!users.length) {
+        container.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><p>No users yet.</p></div>';
+        return;
+      }
+      container.innerHTML = users.map(u => `
+        <div class="user-pill" id="pill-${u.id}" onclick="selectUser('${u.id}','${u.fullName}')">
+          <div class="avatar">${u.fullName[0]}</div>
+          <div class="user-info">
+            <div class="user-name">${u.fullName}</div>
+            <div class="user-email">${u.email}</div>
+            <div class="user-id">${u.id}</div>
+          </div>
+          <span class="badge ${u.kycStatus === 'APPROVED' ? 'badge-green' : u.kycStatus === 'PENDING' ? 'badge-yellow' : 'badge-red'}">${u.kycStatus || 'UNVERIFIED'}</span>
+        </div>`).join('');
+      if (selectedUserId) document.getElementById('pill-' + selectedUserId)?.classList.add('selected');
+    } catch (e) { container.innerHTML = '<div class="alert alert-error show">Could not load users: ' + e.message + '</div>'; }
+  }
+
+  async function submitKyc() {
+    if (!requireUser()) return;
+    const bvn = document.getElementById('kyc-bvn').value.trim();
+    const nin = document.getElementById('kyc-nin').value.trim();
+    const addr = document.getElementById('kyc-address').value.trim();
+    if (!bvn || !nin || !addr) return showAlert('kyc-alert', 'Please fill in all KYC fields.', 'error');
+    try {
+      await api(`/api/users/${selectedUserId}/kyc`, 'POST', { bvn, nin, residentialAddress: addr });
+      showAlert('kyc-alert', '✓ KYC submitted! Now click Approve for demo.', 'success');
+      loadUsers();
+    } catch (e) { showAlert('kyc-alert', '✗ ' + e.message, 'error'); }
+  }
+
+  async function approveKyc() {
+    if (!requireUser()) return;
+    try {
+      await api(`/api/users/${selectedUserId}/kyc/approve`, 'POST');
+      showAlert('kyc-alert', '✓ KYC approved!', 'success');
+      loadUsers();
+    } catch (e) { showAlert('kyc-alert', '✗ ' + e.message, 'error'); }
+  }
+
+  // ─── WALLET ───────────────────────────────────────────────
+  async function fundWallet() {
+    if (!requireUser()) return;
+    const currency = document.getElementById('fund-currency').value;
+    const amount = parseFloat(document.getElementById('fund-amount').value);
+    const memo = document.getElementById('fund-memo').value || 'Demo funding';
+    if (!amount || amount <= 0) return showAlert('fund-alert', 'Enter a valid amount.', 'error');
+    try {
+      await api(`/api/wallets/${selectedUserId}/fund`, 'POST', { currency, amount, memo });
+      showAlert('fund-alert', `✓ Wallet funded with ${currency} ${amount.toLocaleString()}`, 'success');
+      loadBalances(); loadLedger();
+    } catch (e) { showAlert('fund-alert', '✗ ' + e.message, 'error'); }
+  }
+
+  async function loadBalances() {
+    if (!selectedUserId) return;
+    const el = document.getElementById('balances-display');
+    try {
+      const balances = await api(`/api/wallets/${selectedUserId}`);
+      if (!balances.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">💰</div><p>No balances yet. Fund the wallet above.</p></div>'; return; }
+      el.innerHTML = '<div class="balance-grid">' + balances.map(b => `
+        <div class="balance-card">
+          <div class="balance-currency">${b.currency}</div>
+          <div class="balance-amount">${Number(b.balance).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+        </div>`).join('') + '</div>';
+    } catch (e) { el.innerHTML = '<div class="alert alert-error show">' + e.message + '</div>'; }
+  }
+
+  async function loadLedger() {
+    if (!selectedUserId) return;
+    const el = document.getElementById('ledger-display');
+    try {
+      const entries = await api(`/api/wallets/${selectedUserId}/ledger`);
+      if (!entries.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📒</div><p>No transactions yet.</p></div>'; return; }
+      el.innerHTML = entries.slice(0, 20).map(e => {
+        const isCredit = e.side === 'CREDIT';
+        return `<div class="ledger-row">
+          <div class="ledger-icon ${isCredit ? 'credit' : 'debit'}">${isCredit ? '↓' : '↑'}</div>
+          <div class="ledger-meta">
+            <div class="ledger-desc">${e.description || e.memo || 'Transaction'}</div>
+            <div class="ledger-date">${e.currency} · ${e.side}</div>
+          </div>
+          <div class="ledger-amount" style="color:${isCredit ? 'var(--green)' : 'var(--danger)'}">
+            ${isCredit ? '+' : '-'}${Number(e.amount).toLocaleString(undefined,{minimumFractionDigits:2})}
+          </div>
+        </div>`;
+      }).join('');
+    } catch (e) { el.innerHTML = '<div class="alert alert-error show">' + e.message + '</div>'; }
+  }
+
+  // ─── TRANSFERS ────────────────────────────────────────────
+  async function getQuote() {
+    const body = {
+      sourceCurrency: document.getElementById('q-src').value,
+      targetCurrency: document.getElementById('q-tgt').value,
+      sourceAmount: parseFloat(document.getElementById('q-amount').value),
+      transferType: document.getElementById('q-type').value
+    };
+    if (!body.sourceAmount) return alert('Enter an amount.');
+    const box = document.getElementById('quote-result');
+    box.classList.remove('show');
+    try {
+      const q = await api('/api/transfers/quote', 'POST', body);
+      box.innerHTML = `
+        <div style="font-family:var(--font-head);font-weight:700;font-size:1rem;margin-bottom:12px;color:var(--green)">Quote Summary</div>
+        <div class="quote-row"><span class="ql">You Send</span><span class="qv">${q.sourceCurrency} ${Number(q.sourceAmount).toLocaleString()}</span></div>
+        <div class="quote-row"><span class="ql">They Receive</span><span class="qv">${q.targetCurrency} ${Number(q.targetAmount).toLocaleString(undefined,{minimumFractionDigits:2})}</span></div>
+        <div class="quote-row"><span class="ql">Exchange Rate</span><span class="qv">${q.exchangeRate}</span></div>
+        <div class="quote-row"><span class="ql">Fee</span><span class="qv">${q.sourceCurrency} ${Number(q.fee || 0).toLocaleString()}</span></div>
+        <div class="quote-row"><span class="ql">Type</span><span class="qv">${q.transferType}</span></div>`;
+      box.classList.add('show');
+    } catch (e) { alert('Quote failed: ' + e.message); }
+  }
+
+  async function simulateTransfer() {
+    if (!requireUser()) return;
+    const body = {
+      sourceUserId: selectedUserId,
+      sourceCurrency: document.getElementById('t-src').value,
+      targetCurrency: document.getElementById('t-tgt').value,
+      sourceAmount: parseFloat(document.getElementById('t-amount').value),
+      transferType: document.getElementById('t-type').value,
+      recipientName: document.getElementById('t-recipient').value,
+      destinationCountry: document.getElementById('t-country').value,
+      destinationReference: document.getElementById('t-ref').value
+    };
+    if (!body.sourceAmount || !body.recipientName) return showAlert('transfer-alert', 'Fill in all transfer fields.', 'error');
+    try {
+      const t = await api('/api/transfers/simulate', 'POST', body);
+      showAlert('transfer-alert', `✓ Transfer simulated! ID: ${t.id} · Status: ${t.status}`, 'success');
+      loadBalances(); loadLedger();
+    } catch (e) { showAlert('transfer-alert', '✗ ' + e.message, 'error'); }
+  }
+
+  // ─── CRYPTO ───────────────────────────────────────────────
+  async function loadCrypto() {
+    const el = document.getElementById('crypto-display');
+    const vs = document.getElementById('crypto-currency').value;
+    el.innerHTML = '<div class="empty"><div class="spinner" style="width:24px;height:24px;margin:0 auto 8px"></div><p>Fetching live prices...</p></div>';
+    try {
+      const data = await api(`/api/crypto/prices?page=1&perPage=20&vsCurrency=${vs}`);
+      const coins = data.coins || data.data || data;
+      if (!Array.isArray(coins) || !coins.length) { el.innerHTML = '<div class="empty"><p>No price data available.</p></div>'; return; }
+      el.innerHTML = `<div style="overflow-x:auto"><table class="crypto-table">
+        <thead><tr>
+          <th>#</th><th>Coin</th>
+          <th>Price (${vs.toUpperCase()})</th>
+          <th>24h Change</th>
+          <th>Market Cap</th>
+        </tr></thead>
+        <tbody>${coins.map((c, i) => {
+        const change = c.priceChangePercentage24h ?? c.price_change_percentage_24h ?? 0;
+        const isUp = change >= 0;
+        return `<tr>
+            <td style="color:var(--muted)">${i+1}</td>
+            <td><div class="coin-name">${c.name || c.id}</div><div class="coin-symbol">${c.symbol || ''}</div></td>
+            <td style="font-weight:600">${Number(c.currentPrice ?? c.current_price ?? c.price ?? 0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}</td>
+            <td class="${isUp ? 'price-up' : 'price-down'}">${isUp ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%</td>
+            <td style="color:var(--muted);font-size:0.8rem">${formatMarketCap(c.marketCap ?? c.market_cap)}</td>
+          </tr>`;
+      }).join('')}</tbody>
+      </table></div>`;
+    } catch (e) { el.innerHTML = '<div class="alert alert-error show">Could not load prices: ' + e.message + '</div>'; }
+  }
+
+  function formatMarketCap(val) {
+    if (!val) return '—';
+    if (val >= 1e12) return '$' + (val/1e12).toFixed(2) + 'T';
+    if (val >= 1e9) return '$' + (val/1e9).toFixed(2) + 'B';
+    if (val >= 1e6) return '$' + (val/1e6).toFixed(2) + 'M';
+    return '$' + val.toLocaleString();
+  }
+
+  // ─── INIT ─────────────────────────────────────────────────
+  loadUsers();
+</script>
 </body>
 </html>
