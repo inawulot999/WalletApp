@@ -81,16 +81,7 @@
         </div>
       </header>
 
-      <section class="mobile-tabs" aria-label="Views">
-        <button class="mobile-tab is-active" type="button" data-view="dashboard">Home</button>
-        <button class="mobile-tab" type="button" data-view="send">Send</button>
-        <button class="mobile-tab" type="button" data-view="swap">Swap</button>
-        <button class="mobile-tab" type="button" data-view="kyc">KYC</button>
-        <button class="mobile-tab" type="button" data-view="profile">Profile</button>
-        <button class="mobile-tab" type="button" data-view="security">Security</button>
-        <button class="mobile-tab" type="button" data-view="activity">Activity</button>
-      </section>
-
+      <div class="view-stack">
       <section class="view is-visible" data-panel="dashboard">
         <div class="dashboard-grid">
           <section class="balance-panel">
@@ -123,6 +114,32 @@
                 <i data-lucide="list-checks"></i>
                 <span>Ledger</span>
               </button>
+            </div>
+          </section>
+
+          <section class="rate-panel">
+            <div class="panel-head compact">
+              <div>
+                <p class="eyebrow">Market tracker</p>
+                <h2>USDT / USD</h2>
+              </div>
+              <i data-lucide="candlestick-chart"></i>
+            </div>
+            <div class="usdt-price" id="usdtPriceValue">--</div>
+            <div class="usdt-meta-row">
+              <span>Direction</span>
+              <strong class="price-indicator is-neutral" id="usdtPriceIndicator">
+                <i data-lucide="minus"></i>
+                <span>Waiting for update</span>
+              </strong>
+            </div>
+            <div class="usdt-meta-row">
+              <span>Status</span>
+              <strong id="usdtPriceStatus">Loading latest price...</strong>
+            </div>
+            <div class="usdt-meta-row">
+              <span>Last updated</span>
+              <strong id="usdtLastUpdated">--</strong>
             </div>
           </section>
 
@@ -745,6 +762,38 @@
             </div>
           </div>
         </section>
+      </section>
+      </div>
+
+      <section class="mobile-tabs" aria-label="Views">
+        <button class="mobile-tab is-active" type="button" data-view="dashboard">
+          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="layout-dashboard"></i></span>
+          <span class="tab-label">Home</span>
+        </button>
+        <button class="mobile-tab" type="button" data-view="send">
+          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="send"></i></span>
+          <span class="tab-label">Send</span>
+        </button>
+        <button class="mobile-tab" type="button" data-view="swap">
+          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="repeat-2"></i></span>
+          <span class="tab-label">Swap</span>
+        </button>
+        <button class="mobile-tab" type="button" data-view="kyc">
+          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="shield-check"></i></span>
+          <span class="tab-label">KYC</span>
+        </button>
+        <button class="mobile-tab" type="button" data-view="profile">
+          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="user-round-cog"></i></span>
+          <span class="tab-label">Profile</span>
+        </button>
+        <button class="mobile-tab" type="button" data-view="security">
+          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="key-round"></i></span>
+          <span class="tab-label">Security</span>
+        </button>
+        <button class="mobile-tab" type="button" data-view="activity">
+          <span class="tab-icon-wrapper" aria-hidden="true"><i data-lucide="receipt-text"></i></span>
+          <span class="tab-label">Activity</span>
+        </button>
       </section>
     </main>
   </div>
