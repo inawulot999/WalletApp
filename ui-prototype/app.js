@@ -41,6 +41,12 @@ const transferModes = {
 let transferType = "CROSS_BORDER";
 let appPin = "1234";
 let filePickerOpen = false;
+let usdtUsdPrice = null;
+let usdtTrackerTimer = null;
+
+const USDT_REFRESH_MS = 45000;
+const USDT_RETRY_MS = 15000;
+const USDT_API_URL = "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=usd";
 
 const money = new Intl.NumberFormat("en-US", {
   minimumFractionDigits: 2,
@@ -51,6 +57,127 @@ function paintIcons() {
   if (window.lucide) {
     window.lucide.createIcons();
   }
+}
+
+function formatUsdtPrice(value) {
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4
+  });
+}
+
+function setUsdtStatus(message) {
+  const statusElement = document.querySelector("#usdtPriceStatus");
+  if (statusElement) {
+    statusElement.textContent = message;
+  }
+}
+
+function setUsdtIndicator(direction, label) {
+  const indicator = document.querySelector("#usdtPriceIndicator");
+  if (!indicator) {
+    return;
+  }
+
+  const iconName = direction === "up" ? "trending-up" : direction === "down" ? "trending-down" : "minus";
+  indicator.classList.remove("is-up", "is-down", "is-neutral");
+  indicator.classList.add(direction === "up" ? "is-up" : direction === "down" ? "is-down" : "is-neutral");
+  indicator.innerHTML = `<i data-lucide="${iconName}"></i><span>${label}</span>`;
+  paintIcons();
+}
+
+function setUsdtTimestamp(date = new Date()) {
+  const timestampElement = document.querySelector("#usdtLastUpdated");
+  if (!timestampElement) {
+    return;
+  }
+
+  timestampElement.textContent = date.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+}
+
+function applyUsdtRateToQuotes(price) {
+  const usdNgnRate = rates["USD:NGN"] || 1600;
+  const usdtNgnRate = usdNgnRate / price;
+  rates["USDT:USD"] = price;
+  rates["USD:USDT"] = 1 / price;
+  rates["USDT:NGN"] = usdtNgnRate;
+  rates["NGN:USDT"] = 1 / usdtNgnRate;
+  calculateQuote();
+  calculateSwap();
+}
+
+function updateUsdtPriceView(nextPrice) {
+  const priceValue = document.querySelector("#usdtPriceValue");
+  if (!priceValue) {
+    return;
+  }
+
+  priceValue.textContent = `$${formatUsdtPrice(nextPrice)}`;
+  if (usdtUsdPrice === null) {
+    setUsdtIndicator("neutral", "First live update");
+  } else if (nextPrice > usdtUsdPrice) {
+    setUsdtIndicator("up", "Price increased");
+  } else if (nextPrice < usdtUsdPrice) {
+    setUsdtIndicator("down", "Price decreased");
+  } else {
+    setUsdtIndicator("neutral", "Price unchanged");
+  }
+
+  usdtUsdPrice = nextPrice;
+  setUsdtTimestamp();
+  setUsdtStatus("Live price synced");
+  applyUsdtRateToQuotes(nextPrice);
+}
+
+async function fetchUsdtPrice() {
+  const response = await fetch(USDT_API_URL, {
+    headers: {
+      accept: "application/json"
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const price = Number(payload?.tether?.usd);
+  if (!Number.isFinite(price) || price <= 0) {
+    throw new Error("Invalid price payload");
+  }
+
+  return price;
+}
+
+function scheduleUsdtRefresh(delayMs) {
+  if (usdtTrackerTimer) {
+    window.clearTimeout(usdtTrackerTimer);
+  }
+
+  usdtTrackerTimer = window.setTimeout(() => {
+    void refreshUsdtPrice();
+  }, delayMs);
+}
+
+async function refreshUsdtPrice() {
+  try {
+    const latestPrice = await fetchUsdtPrice();
+    updateUsdtPriceView(latestPrice);
+    scheduleUsdtRefresh(USDT_REFRESH_MS);
+  } catch {
+    setUsdtStatus("Price feed unavailable, retrying...");
+    scheduleUsdtRefresh(USDT_RETRY_MS);
+  }
+}
+
+function startUsdtTracker() {
+  setUsdtStatus("Loading latest price...");
+  setUsdtIndicator("neutral", "Waiting for update");
+  void refreshUsdtPrice();
 }
 
 function setTheme(theme) {
@@ -66,9 +193,16 @@ function setTheme(theme) {
   }
 }
 
-function setView(view) {
+function updateViewUI(view) {
   document.querySelectorAll("[data-panel]").forEach((panel) => {
-    panel.classList.toggle("is-visible", panel.dataset.panel === view);
+    const isVisible = panel.dataset.panel === view;
+    panel.classList.toggle("is-visible", isVisible);
+    panel.setAttribute("aria-hidden", String(!isVisible));
+    if (isVisible) {
+      panel.removeAttribute("inert");
+    } else {
+      panel.setAttribute("inert", "");
+    }
   });
 
   document.querySelectorAll("[data-view], [data-jump]").forEach((button) => {
@@ -78,6 +212,16 @@ function setView(view) {
 
   if (window.location.hash.slice(1) !== view) {
     window.history.replaceState(null, "", `#${view}`);
+  }
+}
+
+function setView(view) {
+  const apply = () => updateViewUI(view);
+
+  if (document.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.startViewTransition(apply);
+  } else {
+    apply();
   }
 }
 
@@ -293,6 +437,21 @@ function unlockWithFingerprint() {
   error.hidden = false;
 }
 
+function animateTabClick(tab) {
+  const wrapper = tab.querySelector(".tab-icon-wrapper");
+  if (!wrapper || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
+  wrapper.classList.remove("animate-click");
+  void wrapper.offsetWidth;
+  wrapper.classList.add("animate-click");
+}
+
+document.querySelectorAll(".mobile-tab").forEach((tab) => {
+  tab.addEventListener("mousedown", () => animateTabClick(tab));
+});
+
 document.querySelectorAll("[data-view], [data-jump]").forEach((button) => {
   button.addEventListener("click", () => {
     if (button.dataset.transferJump) {
@@ -409,4 +568,11 @@ updateSecurityPreview();
 if (startupParams.get("locked") === "true") {
   lockApp();
 }
+startUsdtTracker();
 paintIcons();
+
+window.addEventListener("beforeunload", () => {
+  if (usdtTrackerTimer) {
+    window.clearTimeout(usdtTrackerTimer);
+  }
+});
