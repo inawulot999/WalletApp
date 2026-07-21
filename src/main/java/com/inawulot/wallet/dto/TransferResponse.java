@@ -1,5 +1,6 @@
 package com.inawulot.wallet.dto;
 
+import com.inawulot.wallet.domain.CryptoNetwork;
 import com.inawulot.wallet.domain.TransferRecord;
 import com.inawulot.wallet.domain.TransferStatus;
 import com.inawulot.wallet.domain.TransferType;
@@ -23,25 +24,41 @@ public record TransferResponse(
         String recipientName,
         String destinationCountry,
         String destinationReference,
-        String complianceNote
+        String complianceNote,
+        Instant updatedAt,
+        String assetType,
+        CryptoNetwork network,
+        String senderAddress,
+        String recipientAddress,
+        BigDecimal totalDeduction,
+        String txHash,
+        String statusMessage
 ) {
     public static TransferResponse from(TransferRecord transfer) {
         return new TransferResponse(
-                transfer.id(),
-                transfer.createdAt(),
-                transfer.sourceUserId(),
-                transfer.transferType(),
-                transfer.status(),
-                transfer.sourceCurrency(),
-                transfer.targetCurrency(),
-                transfer.sourceAmount(),
-                transfer.feeAmount(),
-                transfer.exchangeRate(),
-                transfer.estimatedTargetAmount(),
-                transfer.recipientName(),
-                transfer.destinationCountry(),
-                transfer.destinationReference(),
-                transfer.complianceNote()
+                transfer.getId(),
+                transfer.getCreatedAt(),
+                transfer.getSourceUserId(),
+                transfer.getTransferType(),
+                transfer.getStatus(),
+                transfer.getSourceCurrency(),
+                transfer.getTargetCurrency(),
+                transfer.getSourceAmount(),
+                transfer.getFeeAmount(),
+                transfer.getExchangeRate(),
+                transfer.getEstimatedTargetAmount(),
+                transfer.getRecipientName(),
+                transfer.getDestinationCountry(),
+                transfer.getDestinationReference(),
+                transfer.getComplianceNote(),
+                transfer.getUpdatedAt(),
+                transfer.getAssetType(),
+                transfer.getNetwork(),
+                transfer.getSenderAddress(),
+                transfer.getRecipientAddress(),
+                transfer.getTotalDeduction(),
+                transfer.getTxHash(),
+                transfer.getStatusMessage()
         );
     }
 }

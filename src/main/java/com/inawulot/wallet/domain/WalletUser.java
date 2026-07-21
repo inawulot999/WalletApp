@@ -1,26 +1,68 @@
 package com.inawulot.wallet.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import java.time.Instant;
 import java.util.UUID;
 
+@Entity
+@Table(name = "wallet_users")
 public class WalletUser {
-    private final UUID id;
-    private final Instant createdAt;
+    @Id
+    private UUID id;
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
+    @Column(nullable = false)
     private String fullName;
+    @Column(nullable = false, unique = true)
     private String email;
+    @Column(nullable = false)
     private String phoneNumber;
+    @Column(nullable = false, length = 2)
     private String country;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private KycStatus kycStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private WalletStatus walletStatus;
+    @Column(nullable = false)
+    private String passwordHash;
+    @Column(nullable = false)
+    private String transactionPinHash;
     private String profileImageUrl;
     private boolean twoFactorAuthenticatorEnabled;
     private boolean fingerprintEnabled;
     private boolean pinLockEnabled;
     private boolean immediateLockEnabled;
+    private String twoFactorSecret;
     private String bvn;
     private String nin;
+    @Column(length = 512)
     private String residentialAddress;
 
+    protected WalletUser() {
+    }
+
     public WalletUser(UUID id, Instant createdAt, String fullName, String email, String phoneNumber, String country) {
+        this(id, createdAt, fullName, email, phoneNumber, country, "DEMO_PASSWORDLESS_HASH", "DEMO_PIN_HASH");
+    }
+
+    public WalletUser(
+            UUID id,
+            Instant createdAt,
+            String fullName,
+            String email,
+            String phoneNumber,
+            String country,
+            String passwordHash,
+            String transactionPinHash
+    ) {
         this.id = id;
         this.createdAt = createdAt;
         this.fullName = fullName;
@@ -28,11 +70,15 @@ public class WalletUser {
         this.phoneNumber = phoneNumber;
         this.country = country;
         this.kycStatus = KycStatus.PENDING;
+        this.walletStatus = WalletStatus.ACTIVE;
+        this.passwordHash = passwordHash;
+        this.transactionPinHash = transactionPinHash;
         this.profileImageUrl = "";
         this.twoFactorAuthenticatorEnabled = true;
         this.fingerprintEnabled = true;
         this.pinLockEnabled = true;
         this.immediateLockEnabled = true;
+        this.twoFactorSecret = "DEMO-OTP-123456";
     }
 
     public UUID getId() {
@@ -63,6 +109,18 @@ public class WalletUser {
         return kycStatus;
     }
 
+    public WalletStatus getWalletStatus() {
+        return walletStatus;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getTransactionPinHash() {
+        return transactionPinHash;
+    }
+
     public String getProfileImageUrl() {
         return profileImageUrl;
     }
@@ -81,6 +139,10 @@ public class WalletUser {
 
     public boolean isImmediateLockEnabled() {
         return immediateLockEnabled;
+    }
+
+    public String getTwoFactorSecret() {
+        return twoFactorSecret;
     }
 
     public String getBvn() {
@@ -126,7 +188,19 @@ public class WalletUser {
         this.immediateLockEnabled = immediateLockEnabled;
     }
 
+    public void updateTransactionPinHash(String transactionPinHash) {
+        this.transactionPinHash = transactionPinHash;
+    }
+
     public void approveKyc() {
         this.kycStatus = KycStatus.VERIFIED;
+    }
+
+    public void lockWallet() {
+        this.walletStatus = WalletStatus.LOCKED;
+    }
+
+    public void activateWallet() {
+        this.walletStatus = WalletStatus.ACTIVE;
     }
 }

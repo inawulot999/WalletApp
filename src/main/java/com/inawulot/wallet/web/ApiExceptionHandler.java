@@ -2,9 +2,9 @@ package com.inawulot.wallet.web;
 
 import com.inawulot.wallet.exception.ComplianceException;
 import com.inawulot.wallet.exception.DuplicateResourceException;
-import com.inawulot.wallet.exception.ExternalServiceException;
 import com.inawulot.wallet.exception.InsufficientFundsException;
 import com.inawulot.wallet.exception.NotFoundException;
+import com.inawulot.wallet.exception.RateLimitException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +24,6 @@ public class ApiExceptionHandler {
         return error(HttpStatus.NOT_FOUND, exception.getMessage(), request.getRequestURI());
     }
 
-    @ExceptionHandler(ExternalServiceException.class)
-    public ResponseEntity<ApiError> handleExternalService(RuntimeException exception, HttpServletRequest request) {
-        return error(HttpStatus.BAD_GATEWAY, exception.getMessage(), request.getRequestURI());
-    }
-
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiError> handleDuplicate(RuntimeException exception, HttpServletRequest request) {
         return error(HttpStatus.CONFLICT, exception.getMessage(), request.getRequestURI());
@@ -37,6 +32,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler({ComplianceException.class, InsufficientFundsException.class, IllegalArgumentException.class})
     public ResponseEntity<ApiError> handleBadRequest(RuntimeException exception, HttpServletRequest request) {
         return error(HttpStatus.BAD_REQUEST, exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(RateLimitException.class)
+    public ResponseEntity<ApiError> handleRateLimit(RuntimeException exception, HttpServletRequest request) {
+        return error(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

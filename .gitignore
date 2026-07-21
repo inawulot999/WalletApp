@@ -5,6 +5,9 @@ target/
 logs/
 *.log
 
+# Local database
+data/
+
 # IDE
 .idea/
 *.iml

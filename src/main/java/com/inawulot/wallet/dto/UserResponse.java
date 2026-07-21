@@ -1,6 +1,7 @@
 package com.inawulot.wallet.dto;
 
 import com.inawulot.wallet.domain.KycStatus;
+import com.inawulot.wallet.domain.WalletStatus;
 import com.inawulot.wallet.domain.WalletUser;
 
 import java.time.Instant;
@@ -14,6 +15,7 @@ public record UserResponse(
         String phoneNumber,
         String country,
         KycStatus kycStatus,
+        WalletStatus walletStatus,
         String profileImageUrl,
         boolean twoFactorAuthenticatorEnabled,
         boolean fingerprintEnabled,
@@ -29,6 +31,7 @@ public record UserResponse(
                 user.getPhoneNumber(),
                 user.getCountry(),
                 user.getKycStatus(),
+                user.getWalletStatus(),
                 user.getProfileImageUrl(),
                 user.isTwoFactorAuthenticatorEnabled(),
                 user.isFingerprintEnabled(),

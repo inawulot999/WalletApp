@@ -1,13 +1,27 @@
 package com.inawulot.wallet.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@Entity
+@Table(name = "money_accounts")
 public class MoneyAccount {
-    private final String reference;
-    private final String ownerReference;
-    private final String currency;
+    @Id
+    private String reference;
+    @Column(nullable = false)
+    private String ownerReference;
+    @Column(nullable = false, length = 12)
+    private String currency;
+    @Column(nullable = false, precision = 28, scale = 8)
     private BigDecimal balance;
+
+    protected MoneyAccount() {
+    }
 
     public MoneyAccount(String reference, String ownerReference, String currency) {
         this.reference = reference;
