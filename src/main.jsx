@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Bell, Search, Eye, EyeOff, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Send, UsersRound, Home, ChartNoAxesCombined, WalletCards, UserRound, ChevronDown, ArrowDownUp, ShieldCheck, Fingerprint, Settings, Plus, MoreHorizontal, X, Check, LockKeyhole, ScanFace, Apple, Chrome, CreditCard, CircleHelp } from 'lucide-react';
+import { Bell, Search, Eye, EyeOff, ArrowDownToLine, ArrowUpFromLine, ArrowLeftRight, Send, UsersRound, Home, ChartNoAxesCombined, WalletCards, UserRound, ChevronDown, ArrowDownUp, ShieldCheck, Fingerprint, Settings, Plus, MoreHorizontal, X, Check, LockKeyhole, ScanFace, Apple, CreditCard, CircleHelp } from 'lucide-react';
 import './styles.css';
 
 const rate = 1500;
