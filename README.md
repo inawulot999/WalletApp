@@ -33,6 +33,12 @@ $env:WALLET_JWT_SECRET = "replace-with-a-long-random-secret"
 
 Register with `POST /api/v1/auth/register`, then send the returned token on protected requests as `Authorization: Bearer <accessToken>`.
 
+## Render deployment
+
+The repository includes `render.yaml` for a Docker-based Render web service. In Render, choose **New > Blueprint**, select this GitHub repository, and create the `wallet-api` service. Render generates `WALLET_JWT_SECRET` automatically and uses the public GitHub Pages URL as the allowed browser origin.
+
+This first hosted deployment uses the existing H2 demo database, which can be reset when the service restarts. Do not use it for customer balances or real money movement. Provisioning PostgreSQL and Flyway migrations is required before production use.
+
 ## Demo flow
 
 Create a user:

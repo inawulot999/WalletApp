@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: wallet-api
+    runtime: docker
+    region: frankfurt
+    plan: free
+    healthCheckPath: /api/v1/prices/usdt
+    envVars:
+      - key: WALLET_JWT_SECRET
+        generateValue: true
+      - key: WALLET_JWT_ISSUER
+        value: wallet-api
+      - key: WALLET_CORS_ALLOWED_ORIGIN
+        value: https://inawulot999.github.io
