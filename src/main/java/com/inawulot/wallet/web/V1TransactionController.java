@@ -11,14 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Locale;
 import java.util.UUID;
+import org.springframework.security.core.Authentication;
+import com.inawulot.wallet.security.CurrentUser;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
 public class V1TransactionController {
     private final TransferService transferService;
+    private final CurrentUser currentUser;
 
-    public V1TransactionController(TransferService transferService) {
+    public V1TransactionController(TransferService transferService, CurrentUser currentUser) {
         this.transferService = transferService;
+        this.currentUser = currentUser;
     }
 
     @GetMapping("/history")
@@ -26,8 +30,9 @@ public class V1TransactionController {
             @RequestParam UUID userId,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size, Authentication authentication
     ) {
+        currentUser.require(userId, authentication);
         TransferStatus parsedStatus = parseStatus(status);
         var result = transferService.getHistory(userId, parsedStatus, page, size);
         return new TransactionHistoryResponse(

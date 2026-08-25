@@ -14,14 +14,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
+import org.springframework.security.core.Authentication;
+import com.inawulot.wallet.security.CurrentUser;
 
 @RestController
 @RequestMapping("/api/transfers")
 public class TransferController {
     private final TransferService transferService;
+    private final CurrentUser currentUser;
 
-    public TransferController(TransferService transferService) {
+    public TransferController(TransferService transferService, CurrentUser currentUser) {
         this.transferService = transferService;
+        this.currentUser = currentUser;
     }
 
     @PostMapping("/quote")
@@ -30,12 +34,15 @@ public class TransferController {
     }
 
     @PostMapping("/simulate")
-    public TransferResponse simulate(@Valid @RequestBody TransferRequest request) {
+    public TransferResponse simulate(@Valid @RequestBody TransferRequest request, Authentication authentication) {
+        currentUser.require(request.sourceUserId(), authentication);
         return TransferResponse.from(transferService.simulateTransfer(request));
     }
 
     @GetMapping("/{transferId}")
-    public TransferResponse getTransfer(@PathVariable UUID transferId) {
-        return TransferResponse.from(transferService.getTransfer(transferId));
+    public TransferResponse getTransfer(@PathVariable UUID transferId, Authentication authentication) {
+        var transfer = transferService.getTransfer(transferId);
+        currentUser.require(transfer.getSourceUserId(), authentication);
+        return TransferResponse.from(transfer);
     }
 }

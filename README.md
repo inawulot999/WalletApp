@@ -25,6 +25,14 @@ mvn spring-boot:run
 
 The API runs on `http://localhost:8080`.
 
+Before starting the secured API, set a random JWT signing secret (at least 32 characters):
+
+```powershell
+$env:WALLET_JWT_SECRET = "replace-with-a-long-random-secret"
+```
+
+Register with `POST /api/v1/auth/register`, then send the returned token on protected requests as `Authorization: Bearer <accessToken>`.
+
 ## Demo flow
 
 Create a user:

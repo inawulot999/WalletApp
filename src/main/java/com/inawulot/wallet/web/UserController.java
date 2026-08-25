@@ -18,14 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.security.core.Authentication;
+import com.inawulot.wallet.security.CurrentUser;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
+    private final CurrentUser currentUser;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, CurrentUser currentUser) {
         this.userService = userService;
+        this.currentUser = currentUser;
     }
 
     @PostMapping
@@ -34,39 +38,43 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserResponse> listUsers() {
-        return userService.listUsers().stream()
-                .map(UserResponse::from)
-                .toList();
+    public List<UserResponse> listUsers(Authentication authentication) {
+        return List.of(UserResponse.from(userService.getUser(currentUser.id(authentication))));
     }
 
     @GetMapping("/{userId}")
-    public UserResponse getUser(@PathVariable UUID userId) {
+    public UserResponse getUser(@PathVariable UUID userId, Authentication authentication) {
+        currentUser.require(userId, authentication);
         return UserResponse.from(userService.getUser(userId));
     }
 
     @PutMapping("/{userId}/profile")
-    public UserResponse updateProfile(@PathVariable UUID userId, @Valid @RequestBody UpdateProfileRequest request) {
+    public UserResponse updateProfile(@PathVariable UUID userId, @Valid @RequestBody UpdateProfileRequest request, Authentication authentication) {
+        currentUser.require(userId, authentication);
         return UserResponse.from(userService.updateProfile(userId, request));
     }
 
     @PutMapping("/{userId}/profile-picture")
-    public UserResponse updateProfilePicture(@PathVariable UUID userId, @Valid @RequestBody UpdateProfileImageRequest request) {
+    public UserResponse updateProfilePicture(@PathVariable UUID userId, @Valid @RequestBody UpdateProfileImageRequest request, Authentication authentication) {
+        currentUser.require(userId, authentication);
         return UserResponse.from(userService.updateProfileImage(userId, request));
     }
 
     @PutMapping("/{userId}/security")
-    public UserResponse updateSecuritySettings(@PathVariable UUID userId, @Valid @RequestBody UpdateSecuritySettingsRequest request) {
+    public UserResponse updateSecuritySettings(@PathVariable UUID userId, @Valid @RequestBody UpdateSecuritySettingsRequest request, Authentication authentication) {
+        currentUser.require(userId, authentication);
         return UserResponse.from(userService.updateSecuritySettings(userId, request));
     }
 
     @PostMapping("/{userId}/kyc")
-    public UserResponse submitKyc(@PathVariable UUID userId, @Valid @RequestBody SubmitKycRequest request) {
+    public UserResponse submitKyc(@PathVariable UUID userId, @Valid @RequestBody SubmitKycRequest request, Authentication authentication) {
+        currentUser.require(userId, authentication);
         return UserResponse.from(userService.submitKyc(userId, request));
     }
 
     @PostMapping("/{userId}/kyc/approve")
-    public UserResponse approveKyc(@PathVariable UUID userId) {
+    public UserResponse approveKyc(@PathVariable UUID userId, Authentication authentication) {
+        currentUser.require(userId, authentication);
         return UserResponse.from(userService.approveKyc(userId));
     }
 }

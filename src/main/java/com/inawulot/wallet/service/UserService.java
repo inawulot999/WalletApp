@@ -8,11 +8,15 @@ import com.inawulot.wallet.dto.SubmitKycRequest;
 import com.inawulot.wallet.dto.UpdateProfileImageRequest;
 import com.inawulot.wallet.dto.UpdateProfileRequest;
 import com.inawulot.wallet.dto.UpdateSecuritySettingsRequest;
+import com.inawulot.wallet.dto.RegisterRequest;
+import com.inawulot.wallet.dto.LoginRequest;
+import com.inawulot.wallet.dto.AuthResponse;
 import com.inawulot.wallet.exception.ComplianceException;
 import com.inawulot.wallet.exception.DuplicateResourceException;
 import com.inawulot.wallet.exception.NotFoundException;
 import com.inawulot.wallet.repository.WalletUserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -26,11 +30,38 @@ public class UserService {
     private final WalletUserRepository userRepository;
     private final HashingService hashingService;
     private final InputSanitizer inputSanitizer;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UserService(WalletUserRepository userRepository, HashingService hashingService, InputSanitizer inputSanitizer) {
+    public UserService(WalletUserRepository userRepository, HashingService hashingService, InputSanitizer inputSanitizer, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.hashingService = hashingService;
         this.inputSanitizer = inputSanitizer;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+    }
+
+    @Transactional
+    public synchronized AuthResponse register(RegisterRequest request) {
+        String email = request.email().trim().toLowerCase();
+        if (userRepository.findByEmail(email).isPresent()) throw new DuplicateResourceException("A user with this email already exists");
+        WalletUser user = new WalletUser(UUID.randomUUID(), Instant.now(), inputSanitizer.clean(request.fullName(), 160), email,
+                inputSanitizer.clean(request.phoneNumber(), 40), inputSanitizer.clean(request.country(), 2).toUpperCase(),
+                passwordEncoder.encode(request.password()), hashingService.sha256("1234"));
+        userRepository.save(user);
+        return authResponse(user);
+    }
+
+    public AuthResponse login(LoginRequest request) {
+        WalletUser user = userRepository.findByEmail(request.email().trim().toLowerCase())
+                .orElseThrow(() -> new ComplianceException("Invalid email or password"));
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) throw new ComplianceException("Invalid email or password");
+        return authResponse(user);
+    }
+
+    private AuthResponse authResponse(WalletUser user) {
+        JwtService.Token token = jwtService.issue(user);
+        return new AuthResponse(token.value(), "Bearer", token.expiresAt(), com.inawulot.wallet.dto.UserResponse.from(user));
     }
 
     @Transactional
