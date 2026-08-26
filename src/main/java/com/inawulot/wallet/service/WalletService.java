@@ -73,6 +73,19 @@ public class WalletService {
         return getOrCreateUserAccount(userId, normalizeCurrency(currency));
     }
 
+    @Transactional
+    public synchronized void convertUserAssets(UUID transactionId, UUID userId, String sourceAsset, BigDecimal sourceAmount,
+                                               String targetAsset, BigDecimal targetAmount) {
+        userService.requireVerified(userId);
+        MoneyAccount source = getOrCreateUserAccount(userId, normalizeCurrency(sourceAsset));
+        MoneyAccount sourceSettlement = getOrCreateInternalAccount("CONVERSION", source.getCurrency());
+        post(transactionId, source, sourceSettlement, normalizeAmount(sourceAmount), "Simulated instant conversion");
+
+        MoneyAccount targetSettlement = getOrCreateInternalAccount("CONVERSION", normalizeCurrency(targetAsset));
+        MoneyAccount target = getOrCreateUserAccount(userId, targetSettlement.getCurrency());
+        post(transactionId, targetSettlement, target, normalizeAmount(targetAmount), "Simulated instant conversion");
+    }
+
     public BigDecimal getBalance(UUID userId, String currency) {
         MoneyAccount account = getOrCreateUserAccount(userId, normalizeCurrency(currency));
         return account.getBalance();

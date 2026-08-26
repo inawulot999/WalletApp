@@ -5,6 +5,8 @@ import com.inawulot.wallet.dto.SendWalletRequest;
 import com.inawulot.wallet.dto.SendWalletResponse;
 import com.inawulot.wallet.dto.V1WalletBalanceResponse;
 import com.inawulot.wallet.dto.WalletAddressResponse;
+import com.inawulot.wallet.dto.ConvertRequest;
+import com.inawulot.wallet.dto.TransferResponse;
 import com.inawulot.wallet.service.RateLimitService;
 import com.inawulot.wallet.service.TransferService;
 import com.inawulot.wallet.service.WalletAddressService;
@@ -67,5 +69,10 @@ public class V1WalletController {
         currentUser.require(request.userId(), authentication);
         rateLimitService.check(servletRequest.getRemoteAddr() + ":wallet-send:" + request.userId());
         return SendWalletResponse.from(transferService.sendWalletTransfer(request));
+    }
+
+    @PostMapping("/convert")
+    public TransferResponse convert(@Valid @RequestBody ConvertRequest request, Authentication authentication) {
+        return TransferResponse.from(transferService.convert(currentUser.id(authentication), request));
     }
 }

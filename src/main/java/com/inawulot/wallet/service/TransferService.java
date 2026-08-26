@@ -9,6 +9,7 @@ import com.inawulot.wallet.dto.QuoteRequest;
 import com.inawulot.wallet.dto.QuoteResponse;
 import com.inawulot.wallet.dto.SendWalletRequest;
 import com.inawulot.wallet.dto.TransferRequest;
+import com.inawulot.wallet.dto.ConvertRequest;
 import com.inawulot.wallet.exception.ComplianceException;
 import com.inawulot.wallet.exception.NotFoundException;
 import com.inawulot.wallet.repository.TransferRecordRepository;
@@ -53,6 +54,19 @@ public class TransferService {
 
     public QuoteResponse quote(QuoteRequest request) {
         return quoteService.quote(request);
+    }
+
+    @Transactional
+    public TransferRecord convert(UUID userId, ConvertRequest request) {
+        userService.requireVerified(userId);
+        QuoteResponse quote = quoteService.quote(new QuoteRequest(request.sourceAsset(), request.targetAsset(), request.sourceAmount(), TransferType.EXCHANGE_WALLET));
+        UUID transactionId = UUID.randomUUID();
+        walletService.convertUserAssets(transactionId, userId, quote.sourceCurrency(), quote.sourceAmount(), quote.targetCurrency(), quote.estimatedTargetAmount());
+        TransferRecord record = new TransferRecord(transactionId, Instant.now(), userId, TransferType.EXCHANGE_WALLET,
+                TransferStatus.SIMULATED, quote.sourceCurrency(), quote.targetCurrency(), quote.sourceAmount(), quote.feeAmount(),
+                quote.exchangeRate(), quote.estimatedTargetAmount(), "Instant conversion", "WALLET", "INTERNAL-CONVERSION",
+                "Simulated conversion only; no exchange or bank rail was used");
+        return transferRecordRepository.save(record);
     }
 
     @Transactional
