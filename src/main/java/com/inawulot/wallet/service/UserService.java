@@ -89,6 +89,13 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
+    @Transactional
+    public WalletUser updatePreferences(UUID userId, String preferredCurrency, boolean notificationsEnabled) {
+        WalletUser user = getUser(userId);
+        user.updatePreferences(inputSanitizer.currency(preferredCurrency), notificationsEnabled);
+        return user;
+    }
+
     public Collection<WalletUser> listUsers() {
         return userRepository.findAll().stream()
                 .sorted(java.util.Comparator.comparing(WalletUser::getCreatedAt))

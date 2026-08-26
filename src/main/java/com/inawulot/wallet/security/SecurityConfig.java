@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/api/v1/auth/**", "/api/v1/prices/**", "/api/transfers/quote", "/h2-console/**")
+                        .requestMatchers("/", "/api/v1/auth/**", "/api/auth/**", "/api/v1/prices/**", "/api/markets/live", "/api/markets/rates", "/api/transfers/quote", "/h2-console/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))

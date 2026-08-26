@@ -45,6 +45,10 @@ public class WalletUser {
     private String nin;
     @Column(length = 512)
     private String residentialAddress;
+    @Column(nullable = false, length = 3)
+    private String preferredCurrency;
+    @Column(nullable = false)
+    private boolean notificationsEnabled;
 
     protected WalletUser() {
     }
@@ -79,6 +83,8 @@ public class WalletUser {
         this.pinLockEnabled = true;
         this.immediateLockEnabled = true;
         this.twoFactorSecret = "DEMO-OTP-123456";
+        this.preferredCurrency = "USD";
+        this.notificationsEnabled = true;
     }
 
     public UUID getId() {
@@ -157,6 +163,14 @@ public class WalletUser {
         return residentialAddress;
     }
 
+    public String getPreferredCurrency() {
+        return preferredCurrency;
+    }
+
+    public boolean isNotificationsEnabled() {
+        return notificationsEnabled;
+    }
+
     public void submitKyc(String bvn, String nin, String residentialAddress) {
         this.bvn = bvn;
         this.nin = nin;
@@ -186,6 +200,11 @@ public class WalletUser {
         this.fingerprintEnabled = fingerprintEnabled;
         this.pinLockEnabled = pinLockEnabled;
         this.immediateLockEnabled = immediateLockEnabled;
+    }
+
+    public void updatePreferences(String preferredCurrency, boolean notificationsEnabled) {
+        this.preferredCurrency = preferredCurrency;
+        this.notificationsEnabled = notificationsEnabled;
     }
 
     public void updateTransactionPinHash(String transactionPinHash) {

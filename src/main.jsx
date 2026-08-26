@@ -2,55 +2,115 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-const makeIcon = (symbol) => ({ size = 18 }) => <span className="ui-icon" style={{ fontSize: size }}>{symbol}</span>;
-const Bell=makeIcon('◌'), Search=makeIcon('⌕'), Eye=makeIcon('◉'), EyeOff=makeIcon('⊘'), ArrowDownToLine=makeIcon('⇩'), ArrowUpFromLine=makeIcon('⇧'), ArrowLeftRight=makeIcon('⇄'), Send=makeIcon('➤'), UsersRound=makeIcon('◉'), Home=makeIcon('⌂'), ChartNoAxesCombined=makeIcon('⌁'), WalletCards=makeIcon('▣'), UserRound=makeIcon('◯'), ChevronDown=makeIcon('⌄'), ArrowDownUp=makeIcon('↕'), ShieldCheck=makeIcon('✓'), Fingerprint=makeIcon('◎'), Settings=makeIcon('⚙'), MoreHorizontal=makeIcon('•••'), X=makeIcon('×'), Check=makeIcon('✓'), LockKeyhole=makeIcon('⌑'), ScanFace=makeIcon('◫'), CircleHelp=makeIcon('?');
+const icon = (symbol) => ({ size = 18 }) => <span className="ui-icon" style={{ fontSize: size }}>{symbol}</span>;
+const Bell = icon('◌'), Search = icon('⌕'), Eye = icon('◉'), EyeOff = icon('⊘'), ArrowDown = icon('⇩'), ArrowUp = icon('⇧'), Swap = icon('⇄'), Send = icon('➤'), Users = icon('◉'), Home = icon('⌂'), Markets = icon('⌁'), Wallet = icon('▣'), User = icon('◯'), Chevron = icon('⌄'), Shield = icon('✓'), Lock = icon('⌑'), Check = icon('✓'), Help = icon('?');
 
-const DEFAULT_USD_TO_NGN_RATE = 1600;
 const API_BASE = 'https://wallet-api-7dom.onrender.com/api/v1';
+const DEFAULT_USD_TO_NGN_RATE = 1600;
+const ROUTES = ['home', 'markets', 'convert', 'wallet', 'profile'];
 const assets = {
-  BTC:{ name:'Bitcoin', price:65000, icon:'₿', color:'#f7931a', change:2.84, data:'2,13 10,16 18,8 26,12 35,6 43,9 52,3 61,7 70,1' },
-  ETH:{ name:'Ethereum', price:3540, icon:'♦', color:'#627eea', change:1.26, data:'2,16 10,10 18,14 26,7 35,11 43,4 52,9 61,2 70,5' },
-  SOL:{ name:'Solana', price:142.8, icon:'≋', color:'#9a6bff', change:-0.74, data:'2,4 10,8 18,5 26,13 35,9 43,15 52,12 61,17 70,19' },
-  USDT:{ name:'Tether USD', price:1, icon:'₮', color:'#26a17b', change:0.01, data:'2,11 10,11 18,10 26,11 35,10 43,11 52,10 61,11 70,10' },
-  USD:{ name:'US Dollar', price:1, icon:'$', color:'#6e7d90', change:0, data:'2,11 70,11'},
-  NGN:{ name:'Nigerian Naira', price:1/DEFAULT_USD_TO_NGN_RATE, icon:'₦', color:'#119a60', change:0, data:'2,11 70,11'}
+  BTC: { name: 'Bitcoin', price: 65000, icon: '₿', color: '#f7931a', change: 2.84, data: '2,13 10,16 18,8 26,12 35,6 43,9 52,3 61,7 70,1' },
+  ETH: { name: 'Ethereum', price: 3540, icon: '♦', color: '#627eea', change: 1.26, data: '2,16 10,10 18,14 26,7 35,11 43,4 52,9 61,2 70,5' },
+  SOL: { name: 'Solana', price: 142.8, icon: '≋', color: '#9a6bff', change: -0.74, data: '2,4 10,8 18,5 26,13 35,9 43,15 52,12 61,17 70,19' },
+  USDT: { name: 'Tether USD', price: 1, icon: '₮', color: '#26a17b', change: 0.01, data: '2,11 10,11 18,10 26,11 35,10 43,11 52,10 61,11 70,10' },
+  USD: { name: 'US Dollar', price: 1, icon: '$', color: '#6e7d90', change: 0, data: '2,11 70,11' },
+  NGN: { name: 'Nigerian Naira', price: 1 / DEFAULT_USD_TO_NGN_RATE, icon: '₦', color: '#119a60', change: 0, data: '2,11 70,11' }
 };
-const fmt = (num, decimals=2) => new Intl.NumberFormat('en-US',{minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(num);
-const money = (v,currency='USD', usdToNgnRate=DEFAULT_USD_TO_NGN_RATE) => currency==='NGN' ? `₦${fmt(v*usdToNgnRate)}` : `$${fmt(v)}`;
-function AssetIcon({symbol, small=false}) { const a=assets[symbol]; return <span className={'asset-icon '+(small?'small':'')} style={{background:a.color}}>{a.icon}</span> }
-function Spark({asset}) { let a=assets[asset]; return <svg className="spark" viewBox="0 0 72 22" preserveAspectRatio="none"><polyline points={a.data} fill="none" stroke={a.change<0?'#f6465d':'#0ecb81'} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg> }
+const fmt = (value, decimals = 2) => new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(value || 0);
+const initialRoute = () => ROUTES.includes(window.location.hash.slice(1)) ? window.location.hash.slice(1) : 'home';
+function AssetIcon({ symbol }) { const asset = assets[symbol]; return <span className="asset-icon" style={{ background: asset.color }}>{asset.icon}</span>; }
+function Spark({ symbol }) { const asset = assets[symbol]; return <svg className="spark" viewBox="0 0 72 22" preserveAspectRatio="none"><polyline points={asset.data} fill="none" stroke={asset.change < 0 ? '#f6465d' : '#0ecb81'} strokeWidth="1.7" /></svg>; }
+function Screen({ children, active }) { return active ? <section className="screen-view">{children}</section> : null; }
 
-function App(){
- const [tab,setTab]=useState('Home'), [market,setMarket]=useState('Hot'), [visible,setVisible]=useState(true), [currency,setCurrency]=useState('USD'), [modal,setModal]=useState(null), [from,setFrom]=useState('USDT'), [to,setTo]=useState('NGN'), [amount,setAmount]=useState('100'), [verificationCode,setVerificationCode]=useState(''), [usdToNgnRate]=useState(DEFAULT_USD_TO_NGN_RATE), [toast,setToast]=useState(''), [session,setSession]=useState(()=>JSON.parse(localStorage.getItem('wallet_session')||'null')), [balances,setBalances]=useState([]), [history,setHistory]=useState([]), [refresh,setRefresh]=useState(0);
- const user=session?.user;
- const completeAuth=(next)=>{localStorage.setItem('wallet_session',JSON.stringify(next));setSession(next);setToast(`Welcome, ${next.user.fullName.split(' ')[0]}`);setTimeout(()=>setToast(''),2800)};
- useEffect(()=>{if(!session)return;const headers={Authorization:`Bearer ${session.accessToken}`};Promise.all([fetch(`${API_BASE}/wallet/balance?userId=${session.user.id}`,{headers}),fetch(`${API_BASE}/transactions/history?userId=${session.user.id}`,{headers})]).then(async([wallet,transactions])=>{if(wallet.ok)setBalances((await wallet.json()).balances||[]);if(transactions.ok)setHistory((await transactions.json()).transactions||[])}).catch(()=>setToast('Unable to refresh wallet data'));},[session,refresh]);
- const assetUsdValue=(symbol)=>symbol==='NGN'?1/usdToNgnRate:assets[symbol].price;
- const total=balances.length?balances.reduce((sum,item)=>sum+(Number(item.balance)||0)*(assets[item.asset]?assetUsdValue(item.asset):0),0):user?0:2450, display=currency==='NGN'?total*usdToNgnRate:total;
- const converted=useMemo(()=>{ const usd=Number(amount||0)*assetUsdValue(from); return usd/assetUsdValue(to) },[amount,from,to,usdToNgnRate]);
- const changeTab = (next) => {setTab(next); if(next==='Convert') setTimeout(()=>document.querySelector('.converter')?.scrollIntoView({behavior:'smooth'}),10)};
- const action=(title)=> { if(title==='Convert') {setTab('Convert'); setTimeout(()=>document.querySelector('.converter')?.scrollIntoView({behavior:'smooth'}),10)} else setModal(title==='Withdraw'?'security':'action') };
- const confirm=()=>{setModal(null);setToast('Conversion request secured and submitted');setTimeout(()=>setToast(''),2800)};
- const executeConvert=async()=>{if(!session){setTab('Profile');setToast('Sign in to convert');return}if(from===to){setToast('Choose two different assets');return}if(!verificationCode){setToast('Enter your trading PIN or 2FA code');return}try{const response=await fetch(`${API_BASE}/wallet/convert`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${session.accessToken}`},body:JSON.stringify({sourceAsset:from,targetAsset:to,sourceAmount:Number(amount),verificationCode})});const data=await response.json();if(!response.ok)throw new Error(data.message||'Conversion failed');setVerificationCode('');setToast(`Converted ${data.sourceAmount} ${data.sourceCurrency}`);setRefresh(value=>value+1)}catch(error){setToast(error.message||'Conversion failed')}};
- return <main className="app-shell">
-  <div className="status"><span>9:41</span><span>● ● ● &nbsp;▰</span></div>
-  <header><button className="avatar" onClick={()=>setTab('Profile')}>{user?.fullName?.split(' ').map(x=>x[0]).join('').slice(0,2)||'AO'}</button><div className="kyc"><ShieldCheck size={13}/> {user?user.kycStatus:'Demo mode'}</div><button className="search"><Search size={17}/><span>Search assets</span></button><button className="icon-button"><Bell size={20}/><i/></button></header>
-  <section className="balance-card"><div className="balance-head"><span>Total assets</span><button onClick={()=>setVisible(!visible)}>{visible?<Eye size={17}/>:<EyeOff size={17}/>}</button><span className="balance-menu"><MoreHorizontal size={19}/></span></div><div className="balance-value">{visible?money(display,currency,usdToNgnRate):'••••••••'}</div><div className="naira-line">{visible ? currency==='USD' ? `≈ ₦${fmt(total*usdToNgnRate)}` : `≈ $${fmt(total)}` : '••••••••'}</div><div className="pnl"><span>24h P&L</span><b>+$42.60 <em>+1.77%</em></b></div><div className="card-footer"><span>Spot account</span><span>View assets <ChevronDown size={14}/></span></div></section>
-  <section className="actions">{[[ArrowDownToLine,'Deposit'],[ArrowUpFromLine,'Withdraw'],[ArrowLeftRight,'Convert'],[Send,'Transfer'],[UsersRound,'P2P']].map(([Icon,label])=><button key={label} onClick={()=>action(label)}><span><Icon size={19}/></span>{label}</button>)}</section>
-  <section className="section-title"><div><h2>Markets</h2><p>Top movers right now</p></div><button onClick={()=>setTab('Markets')}>View all</button></section>
-  <div className="market-tabs">{['Hot','Gainers','Losers','24h Volume'].map(x=><button className={market===x?'active':''} onClick={()=>setMarket(x)} key={x}>{x}</button>)}</div>
-  <section className="watchlist">{['BTC','ETH','SOL','USDT'].map((ticker,i)=>{let a=assets[ticker], neg=market==='Losers'?i%2===0: a.change<0; let c=neg?-Math.abs(a.change):Math.abs(a.change);return <div className="market-row" key={ticker}><AssetIcon symbol={ticker}/><div className="coin-name"><b>{ticker}</b><small>{a.name}</small></div><div className="price"><b>${fmt(a.price,a.price<10?4:2)}</b><small>₦{fmt(a.price*usdToNgnRate, a.price<10?2:0)}</small></div><Spark asset={ticker}/><span className={'change '+(c<0?'down':'')}>{c>0?'+':''}{fmt(c)}%</span></div>})}</section>
-  {user&&<section className="activity"><div className="section-title"><div><h2>Recent activity</h2><p>{balances.length?`${balances.length} live asset balance${balances.length>1?'s':''}`:'No funded assets yet'}</p></div></div>{history.slice(0,3).map(item=><div className="activity-row" key={item.id}><span className="activity-dot"/><div><b>{item.sourceCurrency} → {item.targetCurrency}</b><small>{item.statusMessage||item.status}</small></div><strong>{item.status}</strong></div>)}</section>}
-  <section className="converter" id="convert"><div className="converter-title"><div><span className="amber-dot"/> Instant convert</div><button onClick={()=>setModal('rate')}><CircleHelp size={18}/></button></div><p>Zero-fee conversions at the current rate</p><div className="convert-box"><label>From</label><div className="input-row"><select value={from} onChange={e=>setFrom(e.target.value)}>{Object.keys(assets).map(x=><option key={x}>{x}</option>)}</select><input value={amount} onChange={e=>setAmount(e.target.value.replace(/[^0-9.]/g,''))} inputMode="decimal"/><span className="unit">{from}</span></div></div>
-  <button className="swap" onClick={()=>{let x=from;setFrom(to);setTo(x)}}><ArrowDownUp size={18}/></button>
-  <div className="convert-box to"><label>To</label><div className="input-row"><select value={to} onChange={e=>setTo(e.target.value)}>{Object.keys(assets).map(x=><option key={x}>{x}</option>)}</select><div className="output">{fmt(converted, converted<1?6:2)}</div><span className="unit">{to}</span></div></div>
-  <div className="rate"><span>Live exchange rate</span><b>1 {from} = {fmt(assetUsdValue(from)/assetUsdValue(to), to==='NGN'?2:6)} {to}</b></div>{session&&<input className="convert-pin" type="password" maxLength="16" value={verificationCode} onChange={e=>setVerificationCode(e.target.value.replace(/\s/g,''))} placeholder="Trading PIN or 2FA code" inputMode="numeric"/>}<button className="convert-btn" onClick={executeConvert}>Convert instantly <ArrowLeftRight size={18}/></button></section>
-  {tab==='Profile'&&(user?<section className="profile-panel"><div className="profile-top"><div className="avatar big">{user.fullName.split(' ').map(x=>x[0]).join('').slice(0,2)}</div><div><h3>{user.fullName}</h3><p>{user.email}</p></div><ChevronDown size={18}/></div><div className="profile-status"><div><ShieldCheck/><span><b>{user.kycStatus} verification</b><small>Complete KYC before wallet movement</small></span><Check size={17}/></div><div><LockKeyhole/><span><b>Security score: strong</b><small>Token session active</small></span><Settings size={17}/></div></div><div className="pref"><span>Display currency</span><button onClick={()=>setCurrency(currency==='USD'?'NGN':'USD')}>{currency==='USD'?'$ USD':'₦ NGN'} <ChevronDown size={15}/></button></div><button className="signout" onClick={()=>{localStorage.removeItem('wallet_session');setSession(null)}}>Sign out</button></section>:<AuthPanel onAuth={completeAuth}/>) }
-  <nav>{[[Home,'Home'],[ChartNoAxesCombined,'Markets'],[ArrowLeftRight,'Convert'],[WalletCards,'Wallet'],[UserRound,'Profile']].map(([Icon,name])=><button className={tab===name?'selected':''} onClick={()=>changeTab(name)} key={name}><Icon size={21}/><span>{name}</span></button>)}</nav>
-  {toast&&<div className="toast"><Check size={17}/>{toast}</div>}
-  {modal&&<Modal type={modal} close={()=>setModal(null)} confirm={confirm}/>} 
- </main>
+function App() {
+  const [route, setRoute] = useState(initialRoute);
+  const [market, setMarket] = useState('Hot');
+  const [visible, setVisible] = useState(true);
+  const [currency, setCurrency] = useState('USD');
+  const [from, setFrom] = useState('USDT');
+  const [to, setTo] = useState('NGN');
+  const [amount, setAmount] = useState('100');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [usdToNgnRate] = useState(DEFAULT_USD_TO_NGN_RATE);
+  const [toast, setToast] = useState('');
+  const [session, setSession] = useState(() => JSON.parse(localStorage.getItem('wallet_session') || 'null'));
+  const [balances, setBalances] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [history, setHistory] = useState([]);
+  const [refresh, setRefresh] = useState(0);
+  const user = session?.user;
+  const assetUsdValue = (symbol) => symbol === 'NGN' ? 1 / usdToNgnRate : assets[symbol].price;
+  const total = balances.length ? balances.reduce((sum, item) => sum + (Number(item.balance) || 0) * (assets[item.asset] ? assetUsdValue(item.asset) : 0), 0) : user ? 0 : 2450;
+  const converted = useMemo(() => Number(amount || 0) * assetUsdValue(from) / assetUsdValue(to), [amount, from, to, usdToNgnRate]);
+  const money = (value) => currency === 'NGN' ? `₦${fmt(value * usdToNgnRate)}` : `$${fmt(value)}`;
+  const go = (next) => { window.location.hash = next; };
+  const notify = (message) => { setToast(message); window.setTimeout(() => setToast(''), 2800); };
+
+  useEffect(() => { const onHash = () => setRoute(initialRoute()); window.addEventListener('hashchange', onHash); if (!window.location.hash) window.location.hash = 'home'; return () => window.removeEventListener('hashchange', onHash); }, []);
+  useEffect(() => {
+    if (!session) return;
+    const headers = { Authorization: `Bearer ${session.accessToken}` };
+    Promise.all([fetch(`${API_BASE}/wallet/balance?userId=${session.user.id}`, { headers }), fetch(`${API_BASE}/transactions/history?userId=${session.user.id}`, { headers })])
+      .then(async ([wallet, transactions]) => { if (wallet.ok) { const data = await wallet.json(); setBalances(data.balances || []); setAddresses(data.addresses || []); } if (transactions.ok) setHistory((await transactions.json()).transactions || []); })
+      .catch(() => notify('Unable to refresh wallet data'));
+  }, [session, refresh]);
+
+  const completeAuth = (next) => { localStorage.setItem('wallet_session', JSON.stringify(next)); setSession(next); notify(`Welcome, ${next.user.fullName.split(' ')[0]}`); go('home'); };
+  const signOut = () => { localStorage.removeItem('wallet_session'); setSession(null); setBalances([]); setHistory([]); notify('Signed out'); go('home'); };
+  const convert = async () => {
+    if (!session) { notify('Sign in to convert'); go('profile'); return; }
+    if (from === to) return notify('Choose two different assets');
+    if (!verificationCode) return notify('Enter your trading PIN or 2FA code');
+    try {
+      const response = await fetch(`${API_BASE}/wallet/convert`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.accessToken}` }, body: JSON.stringify({ sourceAsset: from, targetAsset: to, sourceAmount: Number(amount), verificationCode }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Conversion failed');
+      setVerificationCode(''); setRefresh((value) => value + 1); notify(`Converted ${data.sourceAmount} ${data.sourceCurrency}`);
+    } catch (error) { notify(error.message || 'Conversion failed'); }
+  };
+
+  return <main className="app-shell">
+    <div className="status"><span>9:41</span><span>● ● ● &nbsp;▰</span></div>
+    <header><button className="avatar" onClick={() => go('profile')}>{user?.fullName?.split(' ').map((part) => part[0]).join('').slice(0, 2) || 'AO'}</button><div className="kyc"><Shield size={13} /> {user ? user.kycStatus : 'Demo mode'}</div><button className="search"><Search size={17} /><span>Search assets</span></button><button className="icon-button"><Bell size={20} /><i /></button></header>
+
+    <Screen active={route === 'home'}>
+      <section className="balance-card"><div className="balance-head"><span>Total assets</span><button onClick={() => setVisible(!visible)}>{visible ? <Eye size={17} /> : <EyeOff size={17} />}</button></div><div className="balance-value">{visible ? money(total) : '••••••••'}</div><div className="naira-line">{visible ? currency === 'USD' ? `≈ ₦${fmt(total * usdToNgnRate)}` : `≈ $${fmt(total)}` : '••••••••'}</div><div className="pnl"><span>24h P&L</span><b>+$42.60 <em>+1.77%</em></b></div><div className="card-footer"><span>Spot account</span><span>View assets <Chevron size={14} /></span></div></section>
+      <section className="actions">{[[ArrowDown, 'Deposit'], [ArrowUp, 'Withdraw'], [Swap, 'Convert'], [Send, 'Transfer'], [Users, 'P2P']].map(([Icon, label]) => <button key={label} onClick={() => label === 'Convert' ? go('convert') : notify(`${label} is available in the wallet flow`)}><span><Icon size={19} /></span>{label}</button>)}</section>
+      <SectionTitle title="Markets" subtitle="Top movers right now" action="View all" onAction={() => go('markets')} />
+      <MarketList market="Hot" rate={usdToNgnRate} limit={4} />
+      <RecentActivity history={history} />
+    </Screen>
+
+    <Screen active={route === 'markets'}>
+      <SectionTitle title="Markets" subtitle="Live simulated market overview" />
+      <div className="market-tabs">{['Hot', 'Gainers', 'Losers', '24h Volume'].map((tab) => <button className={market === tab ? 'active' : ''} onClick={() => setMarket(tab)} key={tab}>{tab}</button>)}</div>
+      <MarketList market={market} rate={usdToNgnRate} />
+    </Screen>
+
+    <Screen active={route === 'convert'}>
+      <section className="converter standalone"><div className="converter-title"><div><span className="amber-dot" /> Instant convert</div><Help size={18} /></div><p>Zero-fee simulated conversion at the current displayed rate.</p><div className="convert-box"><label>From</label><div className="input-row"><select value={from} onChange={(event) => setFrom(event.target.value)}>{Object.keys(assets).map((asset) => <option key={asset}>{asset}</option>)}</select><input value={amount} onChange={(event) => setAmount(event.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" /><span className="unit">{from}</span></div></div><button className="swap" onClick={() => { const current = from; setFrom(to); setTo(current); }}><Swap size={18} /></button><div className="convert-box"><label>To</label><div className="input-row"><select value={to} onChange={(event) => setTo(event.target.value)}>{Object.keys(assets).map((asset) => <option key={asset}>{asset}</option>)}</select><div className="output">{fmt(converted, converted < 1 ? 6 : 2)}</div><span className="unit">{to}</span></div></div><div className="rate"><span>Live exchange rate</span><b>1 {from} = {fmt(assetUsdValue(from) / assetUsdValue(to), to === 'NGN' ? 2 : 6)} {to}</b></div>{session && <input className="convert-pin" type="password" maxLength="16" value={verificationCode} onChange={(event) => setVerificationCode(event.target.value.replace(/\s/g, ''))} placeholder="Trading PIN or 2FA code" inputMode="numeric" />}<button className="convert-btn" onClick={convert}>Convert instantly <Swap size={18} /></button></section>
+    </Screen>
+
+    <Screen active={route === 'wallet'}>
+      <SectionTitle title="My wallet" subtitle="Spot, funding and futures balances" />
+      <div className="wallet-summary"><span>Spot</span><b>{money(total)}</b><small>Funding and Futures are currently zero in this simulated wallet.</small></div>
+      <section className="watchlist">{(balances.length ? balances : ['BTC', 'ETH', 'SOL', 'USDT', 'NGN'].map((asset) => ({ asset, balance: 0 }))).map((item) => <div className="market-row" key={item.asset}><AssetIcon symbol={item.asset} /><div className="coin-name"><b>{item.asset}</b><small>{assets[item.asset].name}</small></div><div className="price"><b>{fmt(Number(item.balance), item.asset === 'BTC' ? 8 : 2)}</b><small>{money(Number(item.balance) * assetUsdValue(item.asset))}</small></div></div>)}</section>
+      <section className="address-list"><SectionTitle title="Deposit addresses" subtitle="Generated for your account" />{addresses.length ? addresses.map((address) => <div className="address-row" key={address.network}><b>{address.networkName}</b><small>{address.address}</small></div>) : <p className="empty-copy">Sign in to generate your wallet addresses.</p>}</section>
+      <RecentActivity history={history} />
+    </Screen>
+
+    <Screen active={route === 'profile'}>
+      {user ? <section className="profile-panel"><div className="profile-top"><div className="avatar big">{user.fullName.split(' ').map((part) => part[0]).join('').slice(0, 2)}</div><div><h3>{user.fullName}</h3><p>{user.email}</p></div><Chevron size={18} /></div><div className="profile-status"><div><Shield /><span><b>{user.kycStatus} verification</b><small>Approval is handled by a compliance reviewer.</small></span><Check size={17} /></div><div><Lock /><span><b>Security score: strong</b><small>JWT session and trading verification enabled</small></span><Check size={17} /></div></div><div className="pref"><span>Display currency</span><button onClick={() => setCurrency(currency === 'USD' ? 'NGN' : 'USD')}>{currency === 'USD' ? '$ USD' : '₦ NGN'} <Chevron size={15} /></button></div><div className="settings-list"><button onClick={() => notify('API keys are not enabled for this simulated wallet')}>API keys <Chevron /></button><button onClick={() => notify('Notification settings will be available soon')}>Notifications <Chevron /></button></div><button className="signout" onClick={signOut}>Sign out</button></section> : <AuthPanel onAuth={completeAuth} />}
+    </Screen>
+
+    <nav>{[[Home, 'home', 'Home'], [Markets, 'markets', 'Markets'], [Swap, 'convert', 'Convert'], [Wallet, 'wallet', 'Wallet'], [User, 'profile', 'Profile']].map(([Icon, name, label]) => <button className={route === name ? 'selected' : ''} onClick={() => go(name)} key={name}><Icon size={21} /><span>{label}</span></button>)}</nav>
+    {toast && <div className="toast"><Check size={17} />{toast}</div>}
+  </main>;
 }
-function AuthPanel({onAuth}){const [mode,setMode]=useState('login'),[form,setForm]=useState({fullName:'',email:'',phoneNumber:'',country:'NG',password:''}),[error,setError]=useState(''),[loading,setLoading]=useState(false);const update=e=>setForm({...form,[e.target.name]:e.target.value});const submit=async e=>{e.preventDefault();setError('');setLoading(true);try{const payload=mode==='login'?{email:form.email,password:form.password}:form;const response=await fetch(`${API_BASE}/auth/${mode==='login'?'login':'register'}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await response.json();if(!response.ok)throw new Error(data.message||'Unable to authenticate');onAuth(data)}catch(err){setError(err.message||'Network error')}finally{setLoading(false)}};return <section className="profile-panel auth-panel"><div className="auth-heading"><div className="modal-icon"><LockKeyhole/></div><h3>{mode==='login'?'Welcome back':'Create your wallet'}</h3><p>Securely connected to the live wallet API.</p></div><form onSubmit={submit}>{mode==='register'&&<><input name="fullName" placeholder="Full name" value={form.fullName} onChange={update} required/><input name="phoneNumber" placeholder="Phone number" value={form.phoneNumber} onChange={update} required/></>}<input name="email" type="email" placeholder="Email address" value={form.email} onChange={update} required/><input name="password" type="password" placeholder="Password (12+ characters)" minLength="12" value={form.password} onChange={update} required/>{error&&<p className="auth-error">{error}</p>}<button className="primary" disabled={loading}>{loading?'Please wait…':mode==='login'?'Sign in':'Create account'}</button></form><button className="auth-switch" onClick={()=>{setMode(mode==='login'?'register':'login');setError('')}}>{mode==='login'?'New here? Create an account':'Already have an account? Sign in'}</button></section>}
-function Modal({type,close,confirm}){const [pin,setPin]=useState('');const security=type==='security';return <div className="overlay"><div className="modal"><button className="close" onClick={close}><X size={20}/></button>{security?<><div className="modal-icon"><LockKeyhole/></div><h3>Confirm with security check</h3><p>Enter your 4-digit trading PIN to continue.</p><input className="pin" maxLength="4" value={pin} onChange={e=>setPin(e.target.value.replace(/\D/g,''))} placeholder="••••" inputMode="numeric"/><button className="primary" disabled={pin.length<4} onClick={confirm}>Continue</button><button className="bio"><Fingerprint size={19}/> Use biometric verification</button></>:<><div className="modal-icon"><ScanFace/></div><h3>{type==='Withdraw'?'Secure withdrawal':'Ready when you are'}</h3><p>{type==='rate'?'Rates refresh continuously. Your final rate is locked at confirmation.':'This action is protected by PIN, two-factor authentication and biometric checks.'}</p><button className="primary" onClick={close}>Got it</button></>}</div></div>}
-createRoot(document.getElementById('root')).render(<App/>);
+
+function SectionTitle({ title, subtitle, action, onAction }) { return <section className="section-title"><div><h2>{title}</h2><p>{subtitle}</p></div>{action && <button onClick={onAction}>{action}</button>}</section>; }
+function MarketList({ market, rate, limit }) { const entries = Object.keys(assets).filter((symbol) => !['USD', 'NGN'].includes(symbol)).slice(0, limit || 4); return <section className="watchlist">{entries.map((symbol, index) => { const asset = assets[symbol]; const change = market === 'Losers' ? -Math.abs(asset.change) : market === 'Gainers' ? Math.abs(asset.change) : asset.change; return <div className="market-row" key={symbol}><AssetIcon symbol={symbol} /><div className="coin-name"><b>{symbol}</b><small>{asset.name}</small></div><div className="price"><b>${fmt(asset.price, asset.price < 10 ? 4 : 2)}</b><small>₦{fmt(asset.price * rate, asset.price < 10 ? 2 : 0)}</small></div><Spark symbol={symbol} /><span className={`change ${change < 0 ? 'down' : ''}`}>{change > 0 ? '+' : ''}{fmt(change)}%</span></div>; })}</section>; }
+function RecentActivity({ history }) { return <section className="activity"><SectionTitle title="Recent activity" subtitle={history.length ? 'Your latest wallet movements' : 'No transactions yet'} />{history.slice(0, 3).map((item) => <div className="activity-row" key={item.id}><span className="activity-dot" /><div><b>{item.sourceCurrency} → {item.targetCurrency}</b><small>{item.statusMessage || item.status}</small></div><strong>{item.status}</strong></div>)}</section>; }
+function AuthPanel({ onAuth }) { const [mode, setMode] = useState('login'); const [form, setForm] = useState({ fullName: '', email: '', phoneNumber: '', country: 'NG', password: '' }); const [error, setError] = useState(''); const [loading, setLoading] = useState(false); const update = (event) => setForm({ ...form, [event.target.name]: event.target.value }); const submit = async (event) => { event.preventDefault(); setLoading(true); setError(''); try { const body = mode === 'login' ? { email: form.email, password: form.password } : form; const response = await fetch(`${API_BASE}/auth/${mode === 'login' ? 'login' : 'register'}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || 'Unable to authenticate'); onAuth(data); } catch (problem) { setError(problem.message || 'Network error'); } finally { setLoading(false); } }; return <section className="profile-panel auth-panel"><div className="auth-heading"><div className="modal-icon"><Lock /></div><h3>{mode === 'login' ? 'Welcome back' : 'Create your wallet'}</h3><p>Sign in to view your protected wallet information.</p></div><form onSubmit={submit}>{mode === 'register' && <><input name="fullName" placeholder="Full name" value={form.fullName} onChange={update} required /><input name="phoneNumber" placeholder="Phone number" value={form.phoneNumber} onChange={update} required /></>}<input name="email" type="email" placeholder="Email address" value={form.email} onChange={update} required /><input name="password" type="password" placeholder="Password (12+ characters)" minLength="12" value={form.password} onChange={update} required />{error && <p className="auth-error">{error}</p>}<button className="primary" disabled={loading}>{loading ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}</button></form><button className="auth-switch" onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}>{mode === 'login' ? 'New here? Create an account' : 'Already have an account? Sign in'}</button></section>; }
+
+createRoot(document.getElementById('root')).render(<App />);
