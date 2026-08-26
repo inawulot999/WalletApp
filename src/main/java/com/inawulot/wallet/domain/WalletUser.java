@@ -41,6 +41,7 @@ public class WalletUser {
     private boolean pinLockEnabled;
     private boolean immediateLockEnabled;
     private String twoFactorSecret;
+    private String twoFactorPendingSecret;
     private String bvn;
     private String nin;
     @Column(length = 512)
@@ -80,11 +81,11 @@ public class WalletUser {
         this.passwordHash = passwordHash;
         this.transactionPinHash = transactionPinHash;
         this.profileImageUrl = "";
-        this.twoFactorAuthenticatorEnabled = true;
+        this.twoFactorAuthenticatorEnabled = false;
         this.fingerprintEnabled = true;
         this.pinLockEnabled = true;
         this.immediateLockEnabled = true;
-        this.twoFactorSecret = "DEMO-OTP-123456";
+        this.twoFactorSecret = null;
         this.preferredCurrency = "USD";
         this.notificationsEnabled = true;
     }
@@ -153,6 +154,10 @@ public class WalletUser {
         return twoFactorSecret;
     }
 
+    public String getTwoFactorPendingSecret() {
+        return twoFactorPendingSecret;
+    }
+
     public String getBvn() {
         return bvn;
     }
@@ -210,6 +215,16 @@ public class WalletUser {
         this.fingerprintEnabled = fingerprintEnabled;
         this.pinLockEnabled = pinLockEnabled;
         this.immediateLockEnabled = immediateLockEnabled;
+    }
+
+    public void beginTwoFactorEnrollment(String secret) {
+        this.twoFactorPendingSecret = secret;
+    }
+
+    public void confirmTwoFactorEnrollment() {
+        this.twoFactorSecret = twoFactorPendingSecret;
+        this.twoFactorPendingSecret = null;
+        this.twoFactorAuthenticatorEnabled = true;
     }
 
     public void updatePreferences(String preferredCurrency, boolean notificationsEnabled) {

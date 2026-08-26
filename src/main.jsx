@@ -31,7 +31,7 @@ const Bell = icon("◌"),
 
 const API_BASE = "https://wallet-api-7dom.onrender.com/api/v1";
 const DEFAULT_USD_TO_NGN_RATE = 1600;
-const ROUTES = ["home", "markets", "convert", "wallet", "profile", "notifications", "search", "action", "asset"];
+const ROUTES = ["home", "markets", "convert", "wallet", "profile", "notifications", "search", "action", "asset", "twofactor"];
 const assets = {
   BTC: {
     name: "Bitcoin",
@@ -534,7 +534,7 @@ function App() {
                   </span>
                   <Check size={17} />
                 </button>
-                <button onClick={() => openAction("Security centre")}>
+                <button onClick={() => go("twofactor")}>
                   <Lock />
                   <span>
                     <b>Security score: strong</b>
@@ -596,6 +596,10 @@ function App() {
         <Screen name="action" active={route === "action"}>
           <SectionTitle title={action} subtitle="Complete this securely in your wallet" action="Back" onAction={() => go("home")} />
           <section className="detail-card"><div className="modal-icon"><Lock /></div><h3>{action}</h3><p>Continue from this dedicated screen. Transaction protections will be applied before any money movement.</p><button className="primary" onClick={() => action === "Deposit" || action === "Withdraw" ? go("wallet") : action === "P2P" ? go("markets") : go("profile")}>{action === "Deposit" || action === "Withdraw" ? "Open wallet" : "Continue"}</button></section>
+        </Screen>
+
+        <Screen name="twofactor" active={route === "twofactor"}>
+          <TwoFactorPage session={session} onBack={() => go("profile")} />
         </Screen>
       </div>
 
@@ -702,6 +706,13 @@ function RecentActivity({ history }) {
       ))}
     </section>
   );
+}
+function TwoFactorPage({ session, onBack }) {
+  const [setup, setSetup] = useState(null); const [code, setCode] = useState(""); const [message, setMessage] = useState(""); const [loading, setLoading] = useState(false);
+  const headers = { "Content-Type": "application/json", Authorization: `Bearer ${session.accessToken}` };
+  const begin = async () => { setLoading(true); setMessage(""); try { const response = await fetch(`${API_BASE}/user/2fa/setup`, { method: "POST", headers }); const data = await response.json(); if (!response.ok) throw new Error(data.message || "Unable to start setup"); setSetup(data); } catch (error) { setMessage(error.message || "Network error"); } finally { setLoading(false); } };
+  const confirm = async (event) => { event.preventDefault(); setLoading(true); setMessage(""); try { const response = await fetch(`${API_BASE}/user/2fa/confirm`, { method: "POST", headers, body: JSON.stringify({ code }) }); const data = await response.json(); if (!response.ok) throw new Error(data.message || "Unable to verify code"); setMessage(data.message); } catch (error) { setMessage(error.message || "Network error"); } finally { setLoading(false); } };
+  return <><SectionTitle title="Authenticator 2FA" subtitle="Protect conversions with a rotating code" action="Back" onAction={onBack} /><section className="detail-card">{!setup ? <><div className="modal-icon"><Shield /></div><h3>Set up an authenticator</h3><p>Use Google Authenticator, Authy, or another compatible app. Your code changes every 30 seconds.</p><button className="primary" onClick={begin} disabled={loading}>{loading ? "Preparing…" : "Set up authenticator"}</button></> : <form className="gateway-form" onSubmit={confirm}><p>Add this setup key to your authenticator app, then enter its current 6-digit code.</p><code className="totp-secret">{setup.secret}</code><label>Authenticator code<input inputMode="numeric" maxLength="6" value={code} onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))} placeholder="123456" required /></label><button className="primary" disabled={loading}>{loading ? "Verifying…" : "Enable 2FA"}</button></form>}{message && <p className="auth-error">{message}</p>}</section></>;
 }
 function PasswordSupportPage({ title, text, children }) { return <main className="auth-shell"><section className="auth-card"><div className="auth-brand"><div className="auth-logo">W</div><span>WalletApp</span></div><div className="auth-copy"><h1>{title}</h1><p>{text}</p></div>{children}<p className="auth-switch"><button onClick={() => window.location.assign(window.location.pathname)}>Back to login</button></p></section><style>{`html,body,#root{width:100%;height:100%;overflow:auto}.auth-shell{min-height:100dvh;display:grid;place-items:center;padding:max(24px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at 80% 0,#30230c 0,transparent 36%),#0d0f12}.auth-card{width:min(100%,430px);padding:28px 24px;background:#17191e;border:1px solid #2b2e34;border-radius:20px;box-shadow:0 22px 70px #0008}.auth-brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px}.auth-logo{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#f7a600;color:#17120a;font-weight:800}.auth-copy h1{font:700 28px 'Space Grotesk';margin:29px 0 7px}.auth-copy p{color:#8f96a3;font-size:12px;line-height:1.5}.gateway-form{display:grid;gap:13px;margin-top:24px}.gateway-form label{display:grid;gap:6px;color:#bac0c8;font-size:11px}.gateway-form input{width:100%;padding:13px 12px;border:1px solid #30343b;border-radius:9px;background:#101216;color:#f5f5f5;outline:0}.gateway-form input:focus{border-color:#f7a600}.gateway-submit{margin-top:4px;width:100%;padding:13px;border:0;border-radius:9px;background:#f7a600;color:#1b150a;font-weight:700}.auth-error{color:#f88b9a;font-size:11px;margin:0}.auth-switch{text-align:center;margin:23px 0 0;color:#9ba1ab;font-size:12px}.auth-switch button{border:0;background:none;color:#f7a600;font-weight:700}`}</style></main>; }
 function ForgotPasswordPage() { const [email,setEmail]=useState(""); const [message,setMessage]=useState(""); const [loading,setLoading]=useState(false); const submit=async(event)=>{event.preventDefault();setLoading(true);setMessage("");try{const response=await fetch(`${API_BASE}/auth/password-reset/request`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});const data=await response.json();if(!response.ok)throw new Error(data.message||"Unable to request a reset link");setMessage(data.message)}catch(error){setMessage(error.message||"Network error")}finally{setLoading(false)}};return <PasswordSupportPage title="Reset your password" text="Enter your account email and we will send a secure reset link."><form className="gateway-form" onSubmit={submit}><label>Email<input type="email" value={email} onChange={(event)=>setEmail(event.target.value)} placeholder="Enter your email" required /></label>{message&&<p className="auth-error">{message}</p>}<button className="gateway-submit" disabled={loading}>{loading?"Sending…":"Send reset link"}</button></form></PasswordSupportPage>; }

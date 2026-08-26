@@ -7,6 +7,7 @@ import com.inawulot.wallet.dto.ExecuteConversionRequest;
 import com.inawulot.wallet.dto.QuoteRequest;
 import com.inawulot.wallet.dto.TransferResponse;
 import com.inawulot.wallet.dto.UpdatePreferencesRequest;
+import com.inawulot.wallet.dto.TwoFactorConfirmRequest;
 import com.inawulot.wallet.security.CurrentUser;
 import com.inawulot.wallet.service.PriceService;
 import com.inawulot.wallet.service.QuoteService;
@@ -58,6 +59,20 @@ public class SpaApiController {
     public Map<String, Object> settings(@Valid @RequestBody UpdatePreferencesRequest request, Authentication authentication) {
         var user = users.updatePreferences(currentUser.id(authentication), request.preferredCurrency(), request.notificationsEnabled());
         return Map.of("preferredCurrency", user.getPreferredCurrency(), "notificationsEnabled", user.isNotificationsEnabled());
+    }
+
+    @PostMapping("/user/2fa/setup")
+    public Map<String, String> setupTwoFactor(Authentication authentication) {
+        var user = users.getUser(currentUser.id(authentication));
+        String secret = users.beginTwoFactorEnrollment(user.getId());
+        String label = java.net.URLEncoder.encode("WalletApp:" + user.getEmail(), java.nio.charset.StandardCharsets.UTF_8);
+        return Map.of("secret", secret, "uri", "otpauth://totp/" + label + "?secret=" + secret + "&issuer=WalletApp&algorithm=SHA1&digits=6&period=30");
+    }
+
+    @PostMapping("/user/2fa/confirm")
+    public Map<String, String> confirmTwoFactor(@Valid @RequestBody TwoFactorConfirmRequest request, Authentication authentication) {
+        users.confirmTwoFactorEnrollment(currentUser.id(authentication), request.code());
+        return Map.of("message", "Authenticator two-factor authentication is enabled.");
     }
 
     @GetMapping("/wallet/balances")

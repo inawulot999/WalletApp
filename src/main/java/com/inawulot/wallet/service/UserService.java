@@ -35,13 +35,15 @@ public class UserService {
     private final InputSanitizer inputSanitizer;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TotpService totps;
 
-    public UserService(WalletUserRepository userRepository, HashingService hashingService, InputSanitizer inputSanitizer, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public UserService(WalletUserRepository userRepository, HashingService hashingService, InputSanitizer inputSanitizer, PasswordEncoder passwordEncoder, JwtService jwtService, TotpService totps) {
         this.userRepository = userRepository;
         this.hashingService = hashingService;
         this.inputSanitizer = inputSanitizer;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.totps = totps;
     }
 
     @Transactional
@@ -194,6 +196,23 @@ public class UserService {
     }
 
     @Transactional
+    public String beginTwoFactorEnrollment(UUID userId) {
+        WalletUser user = getUser(userId);
+        String secret = totps.newSecret();
+        user.beginTwoFactorEnrollment(secret);
+        return secret;
+    }
+
+    @Transactional
+    public void confirmTwoFactorEnrollment(UUID userId, String code) {
+        WalletUser user = getUser(userId);
+        if (!totps.matches(user.getTwoFactorPendingSecret(), code)) {
+            throw new ComplianceException("Invalid authenticator code");
+        }
+        user.confirmTwoFactorEnrollment();
+    }
+
+    @Transactional
     public WalletUser approveKyc(UUID userId) {
         WalletUser user = getUser(userId);
         if (user.getKycStatus() != KycStatus.SUBMITTED && user.getKycStatus() != KycStatus.VERIFIED) {
@@ -217,7 +236,7 @@ public class UserService {
         WalletUser user = getUser(userId);
         String code = inputSanitizer.clean(verificationCode, 16);
         boolean pinAccepted = user.getTransactionPinHash().equals(hashingService.sha256(code));
-        boolean otpAccepted = user.isTwoFactorAuthenticatorEnabled() && DEMO_OTP.equals(code);
+        boolean otpAccepted = user.isTwoFactorAuthenticatorEnabled() && totps.matches(user.getTwoFactorSecret(), code);
         if (!pinAccepted && !otpAccepted) {
             throw new ComplianceException("Invalid PIN or 2FA code");
         }
