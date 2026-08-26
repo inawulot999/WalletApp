@@ -70,7 +70,6 @@ function App() {
   };
 
   return <main className="app-shell">
-    <div className="status"><span>9:41</span><span>● ● ● &nbsp;▰</span></div>
     <header><button className="avatar" onClick={() => go('profile')}>{user?.fullName?.split(' ').map((part) => part[0]).join('').slice(0, 2) || 'AO'}</button><div className="kyc"><Shield size={13} /> {user ? user.kycStatus : 'Demo mode'}</div><button className="search"><Search size={17} /><span>Search assets</span></button><button className="icon-button"><Bell size={20} /><i /></button></header>
 
     <Screen active={route === 'home'}>
