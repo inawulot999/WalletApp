@@ -20,7 +20,7 @@ const fmt = (value, decimals = 2) => new Intl.NumberFormat('en-US', { minimumFra
 const initialRoute = () => ROUTES.includes(window.location.hash.slice(1)) ? window.location.hash.slice(1) : 'home';
 function AssetIcon({ symbol }) { const asset = assets[symbol]; return <span className="asset-icon" style={{ background: asset.color }}>{asset.icon}</span>; }
 function Spark({ symbol }) { const asset = assets[symbol]; return <svg className="spark" viewBox="0 0 72 22" preserveAspectRatio="none"><polyline points={asset.data} fill="none" stroke={asset.change < 0 ? '#f6465d' : '#0ecb81'} strokeWidth="1.7" /></svg>; }
-function Screen({ children, active }) { return active ? <section className="screen-view">{children}</section> : null; }
+function Screen({ children, active, name }) { return active ? <section id={`view-${name}`} className="screen-view">{children}</section> : null; }
 
 function App() {
   const [route, setRoute] = useState(initialRoute);
@@ -72,7 +72,8 @@ function App() {
   return <main className="app-shell">
     <header><button className="avatar" onClick={() => go('profile')}>{user?.fullName?.split(' ').map((part) => part[0]).join('').slice(0, 2) || 'AO'}</button><div className="kyc"><Shield size={13} /> {user ? user.kycStatus : 'Demo mode'}</div><button className="search"><Search size={17} /><span>Search assets</span></button><button className="icon-button"><Bell size={20} /><i /></button></header>
 
-    <Screen active={route === 'home'}>
+    <div className="content-scroll">
+    <Screen name="home" active={route === 'home'}>
       <section className="balance-card"><div className="balance-head"><span>Total assets</span><button onClick={() => setVisible(!visible)}>{visible ? <Eye size={17} /> : <EyeOff size={17} />}</button></div><div className="balance-value">{visible ? money(total) : '••••••••'}</div><div className="naira-line">{visible ? currency === 'USD' ? `≈ ₦${fmt(total * usdToNgnRate)}` : `≈ $${fmt(total)}` : '••••••••'}</div><div className="pnl"><span>24h P&L</span><b>+$42.60 <em>+1.77%</em></b></div><div className="card-footer"><span>Spot account</span><span>View assets <Chevron size={14} /></span></div></section>
       <section className="actions">{[[ArrowDown, 'Deposit'], [ArrowUp, 'Withdraw'], [Swap, 'Convert'], [Send, 'Transfer'], [Users, 'P2P']].map(([Icon, label]) => <button key={label} onClick={() => label === 'Convert' ? go('convert') : notify(`${label} is available in the wallet flow`)}><span><Icon size={19} /></span>{label}</button>)}</section>
       <SectionTitle title="Markets" subtitle="Top movers right now" action="View all" onAction={() => go('markets')} />
@@ -80,17 +81,17 @@ function App() {
       <RecentActivity history={history} />
     </Screen>
 
-    <Screen active={route === 'markets'}>
+    <Screen name="markets" active={route === 'markets'}>
       <SectionTitle title="Markets" subtitle="Live simulated market overview" />
       <div className="market-tabs">{['Hot', 'Gainers', 'Losers', '24h Volume'].map((tab) => <button className={market === tab ? 'active' : ''} onClick={() => setMarket(tab)} key={tab}>{tab}</button>)}</div>
       <MarketList market={market} rate={usdToNgnRate} />
     </Screen>
 
-    <Screen active={route === 'convert'}>
+    <Screen name="convert" active={route === 'convert'}>
       <section className="converter standalone"><div className="converter-title"><div><span className="amber-dot" /> Instant convert</div><Help size={18} /></div><p>Zero-fee simulated conversion at the current displayed rate.</p><div className="convert-box"><label>From</label><div className="input-row"><select value={from} onChange={(event) => setFrom(event.target.value)}>{Object.keys(assets).map((asset) => <option key={asset}>{asset}</option>)}</select><input value={amount} onChange={(event) => setAmount(event.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" /><span className="unit">{from}</span></div></div><button className="swap" onClick={() => { const current = from; setFrom(to); setTo(current); }}><Swap size={18} /></button><div className="convert-box"><label>To</label><div className="input-row"><select value={to} onChange={(event) => setTo(event.target.value)}>{Object.keys(assets).map((asset) => <option key={asset}>{asset}</option>)}</select><div className="output">{fmt(converted, converted < 1 ? 6 : 2)}</div><span className="unit">{to}</span></div></div><div className="rate"><span>Live exchange rate</span><b>1 {from} = {fmt(assetUsdValue(from) / assetUsdValue(to), to === 'NGN' ? 2 : 6)} {to}</b></div>{session && <input className="convert-pin" type="password" maxLength="16" value={verificationCode} onChange={(event) => setVerificationCode(event.target.value.replace(/\s/g, ''))} placeholder="Trading PIN or 2FA code" inputMode="numeric" />}<button className="convert-btn" onClick={convert}>Convert instantly <Swap size={18} /></button></section>
     </Screen>
 
-    <Screen active={route === 'wallet'}>
+    <Screen name="wallet" active={route === 'wallet'}>
       <SectionTitle title="My wallet" subtitle="Spot, funding and futures balances" />
       <div className="wallet-summary"><span>Spot</span><b>{money(total)}</b><small>Funding and Futures are currently zero in this simulated wallet.</small></div>
       <section className="watchlist">{(balances.length ? balances : ['BTC', 'ETH', 'SOL', 'USDT', 'NGN'].map((asset) => ({ asset, balance: 0 }))).map((item) => <div className="market-row" key={item.asset}><AssetIcon symbol={item.asset} /><div className="coin-name"><b>{item.asset}</b><small>{assets[item.asset].name}</small></div><div className="price"><b>{fmt(Number(item.balance), item.asset === 'BTC' ? 8 : 2)}</b><small>{money(Number(item.balance) * assetUsdValue(item.asset))}</small></div></div>)}</section>
@@ -98,12 +99,14 @@ function App() {
       <RecentActivity history={history} />
     </Screen>
 
-    <Screen active={route === 'profile'}>
+    <Screen name="profile" active={route === 'profile'}>
       {user ? <section className="profile-panel"><div className="profile-top"><div className="avatar big">{user.fullName.split(' ').map((part) => part[0]).join('').slice(0, 2)}</div><div><h3>{user.fullName}</h3><p>{user.email}</p></div><Chevron size={18} /></div><div className="profile-status"><div><Shield /><span><b>{user.kycStatus} verification</b><small>Approval is handled by a compliance reviewer.</small></span><Check size={17} /></div><div><Lock /><span><b>Security score: strong</b><small>JWT session and trading verification enabled</small></span><Check size={17} /></div></div><div className="pref"><span>Display currency</span><button onClick={() => setCurrency(currency === 'USD' ? 'NGN' : 'USD')}>{currency === 'USD' ? '$ USD' : '₦ NGN'} <Chevron size={15} /></button></div><div className="settings-list"><button onClick={() => notify('API keys are not enabled for this simulated wallet')}>API keys <Chevron /></button><button onClick={() => notify('Notification settings will be available soon')}>Notifications <Chevron /></button></div><button className="signout" onClick={signOut}>Sign out</button></section> : <AuthPanel onAuth={completeAuth} />}
     </Screen>
+    </div>
 
     <nav>{[[Home, 'home', 'Home'], [Markets, 'markets', 'Markets'], [Swap, 'convert', 'Convert'], [Wallet, 'wallet', 'Wallet'], [User, 'profile', 'Profile']].map(([Icon, name, label]) => <button className={route === name ? 'selected' : ''} onClick={() => go(name)} key={name}><Icon size={21} /><span>{label}</span></button>)}</nav>
     {toast && <div className="toast"><Check size={17} />{toast}</div>}
+    <style>{`html,body,#root{width:100%;height:100%;overflow:hidden}body{min-height:100dvh}.app-shell{width:100%;height:100dvh;min-height:0;margin:0 auto;padding:0;display:flex;flex-direction:column;overflow:hidden}.app-shell header{flex:none;padding:max(12px,env(safe-area-inset-top)) 18px 12px}.content-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 18px calc(24px + env(safe-area-inset-bottom));scrollbar-width:none}.content-scroll::-webkit-scrollbar{display:none}.screen-view{min-height:100%;padding-bottom:8px}nav{position:static;left:auto;bottom:auto;transform:none;flex:none;max-width:none;width:100%;height:auto;min-height:73px;padding:10px 13px max(12px,env(safe-area-inset-bottom));box-sizing:content-box}@media(max-width:480px){.app-shell{width:100vw;height:100dvh;border-radius:0;box-shadow:none}}@media(min-width:481px){body{display:grid;place-items:center;background:#060708}#root{display:contents}.app-shell{width:min(430px,calc(100vw - 32px));height:min(900px,calc(100dvh - 32px));min-height:0;border-radius:28px;box-shadow:0 24px 80px #000;overflow:hidden}}`}</style>
   </main>;
 }
 
