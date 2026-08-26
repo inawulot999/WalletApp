@@ -17,6 +17,10 @@ services:
         fromDatabase:
           name: wallet-postgres
           property: connectionString
+      - key: WALLET_FLYWAY_ENABLED
+        value: "true"
+      - key: WALLET_DDL_AUTO
+        value: validate
       - key: WALLET_JWT_SECRET
         generateValue: true
       - key: WALLET_JWT_ISSUER
