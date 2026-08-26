@@ -59,6 +59,7 @@ public class TransferService {
     @Transactional
     public TransferRecord convert(UUID userId, ConvertRequest request) {
         userService.requireVerified(userId);
+        userService.requireValidTransferVerification(userId, request.verificationCode());
         QuoteResponse quote = quoteService.quote(new QuoteRequest(request.sourceAsset(), request.targetAsset(), request.sourceAmount(), TransferType.EXCHANGE_WALLET));
         UUID transactionId = UUID.randomUUID();
         walletService.convertUserAssets(transactionId, userId, quote.sourceCurrency(), quote.sourceAmount(), quote.targetCurrency(), quote.estimatedTargetAmount());

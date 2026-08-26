@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import com.inawulot.wallet.security.CurrentUser;
 
@@ -26,10 +27,13 @@ import com.inawulot.wallet.security.CurrentUser;
 public class UserController {
     private final UserService userService;
     private final CurrentUser currentUser;
+    private final boolean allowSelfKycApproval;
 
-    public UserController(UserService userService, CurrentUser currentUser) {
+    public UserController(UserService userService, CurrentUser currentUser,
+                          @Value("${app.demo.allow-self-kyc-approval}") boolean allowSelfKycApproval) {
         this.userService = userService;
         this.currentUser = currentUser;
+        this.allowSelfKycApproval = allowSelfKycApproval;
     }
 
     @PostMapping
@@ -75,6 +79,9 @@ public class UserController {
     @PostMapping("/{userId}/kyc/approve")
     public UserResponse approveKyc(@PathVariable UUID userId, Authentication authentication) {
         currentUser.require(userId, authentication);
+        if (!allowSelfKycApproval) {
+            throw new com.inawulot.wallet.exception.ComplianceException("KYC approval is performed by a compliance reviewer");
+        }
         return UserResponse.from(userService.approveKyc(userId));
     }
 }

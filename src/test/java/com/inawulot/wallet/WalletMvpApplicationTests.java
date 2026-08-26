@@ -19,6 +19,10 @@ class WalletMvpApplicationTests {
 
     @Test
     void registersLogsInAndProtectsWalletResources() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("online"));
+
         String registration = mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"fullName\":\"Amara Okafor\",\"email\":\"amara@example.com\",\"phoneNumber\":\"+2348012345678\",\"country\":\"NG\",\"password\":\"correct-horse-battery\"}"))
@@ -35,5 +39,10 @@ class WalletMvpApplicationTests {
         mockMvc.perform(post("/api/v1/auth/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"amara@example.com\",\"password\":\"correct-horse-battery\"}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.accessToken").isNotEmpty());
+
+        mockMvc.perform(post("/api/users/{userId}/kyc/approve", userId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("KYC approval is performed by a compliance reviewer"));
     }
 }

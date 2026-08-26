@@ -13,17 +13,15 @@ import java.util.Map;
 public class QuoteService {
     private static final String SIMULATED_RATE_SOURCE = "SIMULATED_RATE_NOT_FOR_REAL_TRANSACTIONS";
 
-    private final Map<String, BigDecimal> demoRates = Map.of(
-            "NGN:USDT", new BigDecimal("0.00060"),
-            "NGN:USD", new BigDecimal("0.00060"),
-            "NGN:GBP", new BigDecimal("0.00048"),
-            "NGN:GHS", new BigDecimal("0.00900"),
-            "USDT:NGN", new BigDecimal("1600.00"),
-            "USDT:USD", new BigDecimal("1.00"),
-            "USD:NGN", new BigDecimal("1600.00"),
-            "USD:USDT", new BigDecimal("1.00"),
-            "GBP:NGN", new BigDecimal("2050.00"),
-            "GHS:NGN", new BigDecimal("105.00")
+    private final Map<String, BigDecimal> usdValues = Map.of(
+            "BTC", new BigDecimal("65000.00"),
+            "ETH", new BigDecimal("3540.00"),
+            "SOL", new BigDecimal("142.80"),
+            "USDT", BigDecimal.ONE,
+            "USD", BigDecimal.ONE,
+            "NGN", new BigDecimal("0.000625"),
+            "GBP", new BigDecimal("1.28125"),
+            "GHS", new BigDecimal("0.065625")
     );
 
     public QuoteResponse quote(QuoteRequest request) {
@@ -49,10 +47,13 @@ public class QuoteService {
     }
 
     private BigDecimal calculateFee(String sourceCurrency, BigDecimal sourceAmount, TransferType transferType) {
+        if (transferType == TransferType.EXCHANGE_WALLET) {
+            return BigDecimal.ZERO.setScale(8);
+        }
         BigDecimal percentage = switch (transferType) {
-            case EXCHANGE_WALLET -> new BigDecimal("0.0200");
             case DIOR_WALLET_USER -> new BigDecimal("0.0050");
             case CROSS_BORDER -> new BigDecimal("0.0150");
+            case EXCHANGE_WALLET -> throw new IllegalStateException("Exchange wallet fee was already handled");
         };
         BigDecimal percentageFee = sourceAmount.multiply(percentage);
         BigDecimal minimumFee = switch (sourceCurrency) {
@@ -70,11 +71,12 @@ public class QuoteService {
         if (sourceCurrency.equals(targetCurrency)) {
             return BigDecimal.ONE.setScale(2, RoundingMode.HALF_UP);
         }
-        BigDecimal rate = demoRates.get(sourceCurrency + ":" + targetCurrency);
-        if (rate == null) {
+        BigDecimal sourceUsdValue = usdValues.get(sourceCurrency);
+        BigDecimal targetUsdValue = usdValues.get(targetCurrency);
+        if (sourceUsdValue == null || targetUsdValue == null) {
             throw new IllegalArgumentException("No simulated FX rate configured for " + sourceCurrency + " to " + targetCurrency);
         }
-        return rate;
+        return sourceUsdValue.divide(targetUsdValue, 12, RoundingMode.HALF_UP);
     }
 
     private String normalizeCurrency(String currency) {
