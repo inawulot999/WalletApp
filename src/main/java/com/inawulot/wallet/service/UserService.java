@@ -20,6 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -57,6 +60,29 @@ public class UserService {
                 .orElseThrow(() -> new ComplianceException("Invalid email or password"));
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) throw new ComplianceException("Invalid email or password");
         return authResponse(user);
+    }
+
+    @Transactional
+    public PasswordResetToken createPasswordResetToken(String email) {
+        WalletUser user = userRepository.findByEmail(email.trim().toLowerCase()).orElse(null);
+        if (user == null) {
+            return null;
+        }
+        byte[] bytes = new byte[32];
+        new SecureRandom().nextBytes(bytes);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        user.startPasswordReset(hashingService.sha256(token), Instant.now().plus(15, ChronoUnit.MINUTES));
+        return new PasswordResetToken(user, token);
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        WalletUser user = userRepository.findByPasswordResetTokenHash(hashingService.sha256(token))
+                .orElseThrow(() -> new ComplianceException("This password reset link is invalid or has expired"));
+        if (user.getPasswordResetExpiresAt() == null || !user.getPasswordResetExpiresAt().isAfter(Instant.now())) {
+            throw new ComplianceException("This password reset link is invalid or has expired");
+        }
+        user.resetPassword(passwordEncoder.encode(newPassword));
     }
 
     private AuthResponse authResponse(WalletUser user) {
@@ -180,4 +206,6 @@ public class UserService {
             throw new ComplianceException("Invalid PIN or 2FA code");
         }
     }
+
+    public record PasswordResetToken(WalletUser user, String value) { }
 }

@@ -1,3 +1,60 @@
 package com.inawulot.wallet.web;
-import com.inawulot.wallet.dto.*; import com.inawulot.wallet.service.RateLimitService; import com.inawulot.wallet.service.UserService; import jakarta.servlet.http.HttpServletRequest; import jakarta.validation.Valid; import org.springframework.web.bind.annotation.*;
-@RestController @RequestMapping({"/api/v1/auth", "/api/auth"}) public class AuthController {private final UserService users;private final RateLimitService limits;public AuthController(UserService users,RateLimitService limits){this.users=users;this.limits=limits;}@PostMapping("/register") public AuthResponse register(@Valid @RequestBody RegisterRequest request,HttpServletRequest http){limits.check(http.getRemoteAddr()+":auth");return users.register(request);}@PostMapping("/login") public AuthResponse login(@Valid @RequestBody LoginRequest request,HttpServletRequest http){limits.check(http.getRemoteAddr()+":auth");return users.login(request);}}
+
+import com.inawulot.wallet.dto.AuthResponse;
+import com.inawulot.wallet.dto.LoginRequest;
+import com.inawulot.wallet.dto.PasswordResetConfirmRequest;
+import com.inawulot.wallet.dto.PasswordResetRequest;
+import com.inawulot.wallet.dto.RegisterRequest;
+import com.inawulot.wallet.service.PasswordResetEmailService;
+import com.inawulot.wallet.service.RateLimitService;
+import com.inawulot.wallet.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import java.util.Map;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping({"/api/v1/auth", "/api/auth"})
+public class AuthController {
+    private final UserService users;
+    private final RateLimitService limits;
+    private final PasswordResetEmailService resetEmails;
+
+    public AuthController(UserService users, RateLimitService limits, PasswordResetEmailService resetEmails) {
+        this.users = users;
+        this.limits = limits;
+        this.resetEmails = resetEmails;
+    }
+
+    @PostMapping("/register")
+    public AuthResponse register(@Valid @RequestBody RegisterRequest request, HttpServletRequest http) {
+        limits.check(http.getRemoteAddr() + ":auth");
+        return users.register(request);
+    }
+
+    @PostMapping("/login")
+    public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+        limits.check(http.getRemoteAddr() + ":auth");
+        return users.login(request);
+    }
+
+    @PostMapping("/password-reset/request")
+    public Map<String, String> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request, HttpServletRequest http) {
+        limits.check(http.getRemoteAddr() + ":password-reset");
+        UserService.PasswordResetToken reset = users.createPasswordResetToken(request.email());
+        if (reset != null) {
+            resetEmails.send(reset.user(), reset.value());
+        }
+        return Map.of("message", "If an account exists for that email, a password reset link has been sent.");
+    }
+
+    @PostMapping("/password-reset/confirm")
+    public Map<String, String> confirmPasswordReset(@Valid @RequestBody PasswordResetConfirmRequest request, HttpServletRequest http) {
+        limits.check(http.getRemoteAddr() + ":password-reset");
+        users.resetPassword(request.token(), request.newPassword());
+        return Map.of("message", "Password reset successful. You can now log in.");
+    }
+}

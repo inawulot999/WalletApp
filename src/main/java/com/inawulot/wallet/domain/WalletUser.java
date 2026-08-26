@@ -49,6 +49,8 @@ public class WalletUser {
     private String preferredCurrency;
     @Column(nullable = false)
     private boolean notificationsEnabled;
+    private String passwordResetTokenHash;
+    private Instant passwordResetExpiresAt;
 
     protected WalletUser() {
     }
@@ -171,6 +173,14 @@ public class WalletUser {
         return notificationsEnabled;
     }
 
+    public String getPasswordResetTokenHash() {
+        return passwordResetTokenHash;
+    }
+
+    public Instant getPasswordResetExpiresAt() {
+        return passwordResetExpiresAt;
+    }
+
     public void submitKyc(String bvn, String nin, String residentialAddress) {
         this.bvn = bvn;
         this.nin = nin;
@@ -205,6 +215,17 @@ public class WalletUser {
     public void updatePreferences(String preferredCurrency, boolean notificationsEnabled) {
         this.preferredCurrency = preferredCurrency;
         this.notificationsEnabled = notificationsEnabled;
+    }
+
+    public void startPasswordReset(String tokenHash, Instant expiresAt) {
+        this.passwordResetTokenHash = tokenHash;
+        this.passwordResetExpiresAt = expiresAt;
+    }
+
+    public void resetPassword(String passwordHash) {
+        this.passwordHash = passwordHash;
+        this.passwordResetTokenHash = null;
+        this.passwordResetExpiresAt = null;
     }
 
     public void updateTransactionPinHash(String transactionPinHash) {
