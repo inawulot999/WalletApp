@@ -134,6 +134,7 @@ function App() {
   const [session, setSession] = useState(() =>
     JSON.parse(localStorage.getItem("wallet_session") || "null"),
   );
+  const [showAuthGateway, setShowAuthGateway] = useState(true);
   const [balances, setBalances] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [history, setHistory] = useState([]);
@@ -208,6 +209,7 @@ function App() {
   const completeAuth = (next) => {
     localStorage.setItem("wallet_session", JSON.stringify(next));
     setSession(next);
+    setShowAuthGateway(false);
     notify(`Welcome, ${next.user.fullName.split(" ")[0]}`);
     go("home");
   };
@@ -216,6 +218,7 @@ function App() {
     setSession(null);
     setBalances([]);
     setHistory([]);
+    setShowAuthGateway(true);
     notify("Signed out");
     go("home");
   };
@@ -253,7 +256,9 @@ function App() {
 
   const passwordResetToken = new URLSearchParams(window.location.search).get("resetToken");
   const forgotPassword = new URLSearchParams(window.location.search).has("forgotPassword");
-  if (!session || passwordResetToken) return passwordResetToken ? <PasswordResetPage token={passwordResetToken} /> : forgotPassword ? <ForgotPasswordPage /> : <AuthGateway onAuth={completeAuth} />;
+  if (passwordResetToken) return <PasswordResetPage token={passwordResetToken} />;
+  if (forgotPassword) return <ForgotPasswordPage />;
+  if (showAuthGateway || !session) return <AuthGateway onAuth={completeAuth} />;
 
   return (
     <main className="app-shell">
