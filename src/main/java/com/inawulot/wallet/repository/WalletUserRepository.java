@@ -9,5 +9,7 @@ import java.util.UUID;
 public interface WalletUserRepository extends JpaRepository<WalletUser, UUID> {
     Optional<WalletUser> findByEmail(String email);
 
+    Optional<WalletUser> findByPhoneNumber(String phoneNumber);
+
     Optional<WalletUser> findByPasswordResetTokenHash(String passwordResetTokenHash);
 }

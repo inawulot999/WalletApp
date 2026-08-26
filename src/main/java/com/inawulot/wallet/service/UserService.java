@@ -49,7 +49,7 @@ public class UserService {
         String email = request.email().trim().toLowerCase();
         if (userRepository.findByEmail(email).isPresent()) throw new DuplicateResourceException("A user with this email already exists");
         WalletUser user = new WalletUser(UUID.randomUUID(), Instant.now(), inputSanitizer.clean(request.fullName(), 160), email,
-                inputSanitizer.clean(request.phoneNumber(), 40), inputSanitizer.clean(request.country(), 2).toUpperCase(),
+                normalizePhoneNumber(request.phoneNumber()), inputSanitizer.clean(request.country(), 2).toUpperCase(),
                 passwordEncoder.encode(request.password()), hashingService.sha256("1234"));
         userRepository.save(user);
         return authResponse(user);
@@ -59,6 +59,22 @@ public class UserService {
         WalletUser user = userRepository.findByEmail(request.email().trim().toLowerCase())
                 .orElseThrow(() -> new ComplianceException("Invalid email or password"));
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) throw new ComplianceException("Invalid email or password");
+        return authResponse(user);
+    }
+
+    public WalletUser findByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber).orElse(null);
+    }
+
+    public String normalizePhoneNumber(String value) {
+        String normalized = value == null ? "" : value.replaceAll("[() .-]", "");
+        if (!normalized.matches("^\\+?[0-9]{7,20}$")) {
+            throw new ComplianceException("Enter a valid phone number");
+        }
+        return normalized;
+    }
+
+    public AuthResponse authResponseFor(WalletUser user) {
         return authResponse(user);
     }
 
@@ -102,7 +118,7 @@ public class UserService {
                 Instant.now(),
                 inputSanitizer.clean(request.fullName(), 160),
                 email,
-                inputSanitizer.clean(request.phoneNumber(), 40),
+                normalizePhoneNumber(request.phoneNumber()),
                 inputSanitizer.clean(request.country(), 2).toUpperCase(),
                 hashingService.sha256("demo-passwordless:" + email),
                 hashingService.sha256("1234")
@@ -151,7 +167,7 @@ public class UserService {
         user.updateProfile(
                 inputSanitizer.clean(request.fullName(), 160),
                 email,
-                inputSanitizer.clean(request.phoneNumber(), 40),
+                normalizePhoneNumber(request.phoneNumber()),
                 inputSanitizer.clean(request.country(), 2).toUpperCase(),
                 inputSanitizer.clean(request.residentialAddress(), 512)
         );

@@ -4,8 +4,11 @@ import com.inawulot.wallet.dto.AuthResponse;
 import com.inawulot.wallet.dto.LoginRequest;
 import com.inawulot.wallet.dto.PasswordResetConfirmRequest;
 import com.inawulot.wallet.dto.PasswordResetRequest;
+import com.inawulot.wallet.dto.PhoneOtpRequest;
+import com.inawulot.wallet.dto.PhoneOtpVerifyRequest;
 import com.inawulot.wallet.dto.RegisterRequest;
 import com.inawulot.wallet.service.PasswordResetEmailService;
+import com.inawulot.wallet.service.PhoneOtpService;
 import com.inawulot.wallet.service.RateLimitService;
 import com.inawulot.wallet.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,11 +25,13 @@ public class AuthController {
     private final UserService users;
     private final RateLimitService limits;
     private final PasswordResetEmailService resetEmails;
+    private final PhoneOtpService phoneOtps;
 
-    public AuthController(UserService users, RateLimitService limits, PasswordResetEmailService resetEmails) {
+    public AuthController(UserService users, RateLimitService limits, PasswordResetEmailService resetEmails, PhoneOtpService phoneOtps) {
         this.users = users;
         this.limits = limits;
         this.resetEmails = resetEmails;
+        this.phoneOtps = phoneOtps;
     }
 
     @PostMapping("/register")
@@ -39,6 +44,19 @@ public class AuthController {
     public AuthResponse login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
         limits.check(http.getRemoteAddr() + ":auth");
         return users.login(request);
+    }
+
+    @PostMapping("/phone-otp/request")
+    public Map<String, String> requestPhoneOtp(@Valid @RequestBody PhoneOtpRequest request, HttpServletRequest http) {
+        limits.check(http.getRemoteAddr() + ":phone-otp");
+        phoneOtps.request(request.phoneNumber());
+        return Map.of("message", "If that phone number belongs to an account, a sign-in code has been sent.");
+    }
+
+    @PostMapping("/phone-otp/verify")
+    public AuthResponse verifyPhoneOtp(@Valid @RequestBody PhoneOtpVerifyRequest request, HttpServletRequest http) {
+        limits.check(http.getRemoteAddr() + ":phone-otp");
+        return phoneOtps.verify(request.phoneNumber(), request.code());
     }
 
     @PostMapping("/password-reset/request")
