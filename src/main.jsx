@@ -29,7 +29,7 @@ const Bell = icon("◌"),
   Check = icon("✓"),
   Help = icon("?");
 
-const API_BASE = "https://wallet-api-7dom.onrender.com/api/v1";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://wallet-api-7dom.onrender.com/api/v1";
 const DEFAULT_USD_TO_NGN_RATE = 1600;
 const ROUTES = ["home", "markets", "convert", "wallet", "profile", "notifications", "search", "action", "asset", "twofactor"];
 const assets = {
