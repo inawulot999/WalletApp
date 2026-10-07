@@ -66,7 +66,7 @@ public class AuthController {
         if (reset != null) {
             resetEmails.send(reset.user(), reset.value());
         }
-        return Map.of("message", "If an account exists for that email, a password reset link has been sent.");
+        return Map.of("message", "If an account exists for that email, an 8-digit password reset code has been sent.");
     }
 
     @PostMapping("/password-reset/confirm")

@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -86,9 +85,7 @@ public class UserService {
         if (user == null) {
             return null;
         }
-        byte[] bytes = new byte[32];
-        new SecureRandom().nextBytes(bytes);
-        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        String token = "%08d".formatted(new SecureRandom().nextInt(100_000_000));
         user.startPasswordReset(hashingService.sha256(token), Instant.now().plus(15, ChronoUnit.MINUTES));
         return new PasswordResetToken(user, token);
     }
@@ -96,9 +93,9 @@ public class UserService {
     @Transactional
     public void resetPassword(String token, String newPassword) {
         WalletUser user = userRepository.findByPasswordResetTokenHash(hashingService.sha256(token))
-                .orElseThrow(() -> new ComplianceException("This password reset link is invalid or has expired"));
+                .orElseThrow(() -> new ComplianceException("This password reset code is invalid or has expired"));
         if (user.getPasswordResetExpiresAt() == null || !user.getPasswordResetExpiresAt().isAfter(Instant.now())) {
-            throw new ComplianceException("This password reset link is invalid or has expired");
+            throw new ComplianceException("This password reset code is invalid or has expired");
         }
         user.resetPassword(passwordEncoder.encode(newPassword));
     }
